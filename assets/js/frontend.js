@@ -2,7 +2,7 @@
 (function(){
   const state = { active:null, tabs: CREO_MC.tabs || {} };
 
-  // utils
+  // helpers
   function money(v){
     try { return (isFinite(v)?v:0).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
     catch(e){ return '$'+Number(v||0).toFixed(2); }
@@ -33,7 +33,7 @@
     calculate(form, id);
   }
 
-  // input builders per type
+  // inputs per calculator type
   function buildInputs(form, id){
     const type = form.dataset.type;
     const tab = state.tabs[id] || {};
@@ -146,7 +146,7 @@
     form.querySelector('.creo-cta').onclick = ()=>calculate(form,id);
   }
 
-  // gather body and pass VA tables when present
+  // collect body and pass VA tables when available
   function gather(form){
     const o = {};
     form.querySelectorAll('input,select').forEach(el=>{
@@ -178,7 +178,7 @@
     return o;
   }
 
-  // REST
+  // REST call
   async function calculate(form, id){
     const type = form.dataset.type;
     const body = gather(form);
@@ -192,7 +192,7 @@
     }catch(e){ console.error(e); }
   }
 
-  // renderer  fixed two row layout for every type
+  // render into fixed two row layout for all types
   function render(pane, type, d){
     const donut = pane.querySelector('.creo-donut');
     const legend = pane.querySelector('.creo-legend');
@@ -200,43 +200,43 @@
     const monthly = pane.querySelector('[data-role="monthly"]');
     const controls = pane.querySelector('[data-role="controls"]');
 
-    // clear
     donut.innerHTML = ''; legend.innerHTML = '';
     kstack.innerHTML = ''; monthly.innerHTML = ''; controls.innerHTML = '';
 
-    // helpers
     function fillKpis(list){
       list.slice(0,4).forEach(k=>{
         const el = document.createElement('div');
         el.className = `kpi${k.neg?' neg':''}${k.dark?' dark':''}`;
-        const val = k.raw ?? (typeof k.value==='number' ? money(k.value) : String(k.value||''));
+        const val = k.raw ?? (typeof k.value==='number' ? money(k.value) : String(k.value||'')); 
         el.innerHTML = `<div class="small">${k.label||''}</div><div class="big">${val}</div>`;
         kstack.appendChild(el);
       });
-      while (kstack.children.length<4){ const pad=document.createElement('div'); pad.className='kpi'; pad.innerHTML='<div class="small">&nbsp;</div><div class="big">&nbsp;</div>'; kstack.appendChild(pad); }
+      while (kstack.children.length<4){
+        const pad=document.createElement('div'); pad.className='kpi';
+        pad.innerHTML='<div class="small">&nbsp;</div><div class="big">&nbsp;</div>'; kstack.appendChild(pad);
+      }
     }
-    function donutBlock(src){
-      if (!src || !Array.isArray(src.monthly)) { donut.innerHTML='<div class="donut"><div class="donut-center">No data</div></div>'; return; }
-      const cols = src.colors || ['#f59e0b','#22c55e','#fbbf24','#60a5fa','#a78bfa'];
+    function pieBlock(src){
+      if (!src || !Array.isArray(src.monthly)) {
+        donut.innerHTML = '<div class="pie"><div class="center">$0.00<small>per month</small></div></div>';
+        return;
+      }
+      const cols = src.colors || ['#f59e0b','#34d399','#10b981','#2563eb','#8b5cf6'];
       const slices = src.monthly.map((s,i)=>({v:Number(s.v)||0,c:cols[i%cols.length],label:s.label}));
-      window.CreoDonut(donut, slices);
+      window.CreoPie(donut, slices);
       legend.innerHTML = slices.map(s=>`<div class="item"><span class="swatch" style="background:${s.c}"></span><span>${s.label} ${money(s.v)}</span></div>`).join('');
     }
     function slab(el, rows){ el.innerHTML = (rows||[]).map(r=>`<div><strong>${r.label}</strong><span>${typeof r.v==='string'?r.v:money(r.v)}</span></div>`).join(''); }
-
-    // defaults to keep layout filled even if backend is sparse
-    const monthlyTotal = sum(d?.donut?.monthly || []);
     const loanVal = byLabel(d?.monthlyBreak,'mortgage amount') ?? byLabel(d?.monthlyBreak,'loan amount');
 
-    // per type content
     if (type==='affordability'){
       fillKpis([
-        {label:'Monthly Mortgage Payment', value: monthlyTotal},
+        {label:'Monthly Mortgage Payment', value: sum(d?.donut?.monthly||[])},
         {label:'Loan Amount', value: loanVal ?? 0},
         {label:'Your Debt to Income Ratio', raw: String(d?.afford?.dti_you || '0.00% / 0.00%')},
         {label:'Allowable Debt to Income Ratio', raw: String(d?.afford?.dti_allowed || '50% / 50%')}
       ]);
-      donutBlock(d?.donut);
+      pieBlock(d?.donut);
       slab(monthly, d?.monthlyBreak || []);
       controls.innerHTML = `
         <div class="creo-card-h"><h3>Purchase Price</h3></div>
@@ -253,13 +253,13 @@
         {label:'Total Interest Paid', value: Number(d?.kpis?.[2]?.value || 0)},
         {label:'', value: 0}
       ]);
-      donutBlock(d?.donut);
+      pieBlock(d?.donut);
       slab(monthly, d?.monthlyBreak || []);
       controls.innerHTML = `
         <div class="creo-card-h"><h3>Purchase Price</h3></div>
         <div class="creo-slab"><div><strong>Home Value</strong><span>${money(byLabel(d?.monthlyBreak,'home value')||0)}</span></div></div>
         <div class="creo-card-h" style="margin-top:10px"><h3>Down Payment</h3></div>
-        <div class="creo-slab"><div><strong>Down</strong><span>${money(byLabel(d?.monthlyBreak,'monthly hoa fee')!==null ? byLabel(d?.monthlyBreak,'down payment') : Number(d?.down_payment||0))}</span></div></div>`;
+        <div class="creo-slab"><div><strong>Down</strong><span>${money(Number(d?.down_payment||0))}</span></div></div>`;
       return;
     }
 
@@ -272,8 +272,7 @@
         {label:'Refinance Costs', value: Number(d?.costs || 0)},
         {label:'Time to Recoup Fees', raw: String(d?.recoup_time || '--')}
       ]);
-
-      // show a simple compare slab inside the chart card area
+      // show quick compare slab in the chart area
       donut.innerHTML = `
         <div class="creo-slab" style="width:100%">
           <div><strong>Current Loan</strong><span>${money(c?.current||0)}</span></div>
@@ -301,7 +300,7 @@
         {label:'Cash on Cash Return', raw:pct(d?.returns?.coc||0)},
         {label:'DSCR', raw:String(Number(d?.returns?.dscr||0).toFixed(2))}
       ]);
-      donutBlock(d?.donut);   // if you send one. else a No data donut appears
+      pieBlock(d?.donut);
       slab(monthly, d?.monthlyBreak || []);
       controls.innerHTML = `
         <div class="creo-card-h"><h3>Deal Metrics</h3></div>
@@ -319,7 +318,7 @@
         {label:'Return on Investment', raw:pct(d?.metrics?.roi||0)},
         {label:'Loan to After Repaired Value', raw:pct(d?.metrics?.ltv_to_arv||0)}
       ]);
-      donutBlock(d?.donut);
+      pieBlock(d?.donut);
       slab(monthly, d?.dealBreak || d?.monthlyBreak || []);
       controls.innerHTML = `
         <div class="creo-card-h"><h3>Deal Breakdown</h3></div>
@@ -332,24 +331,25 @@
 
     // fallback
     fillKpis(Array.isArray(d?.kpis)?d.kpis.map(x=>({label:x.label, value:Number(x.value||0)})) : []);
-    donutBlock(d?.donut);
+    pieBlock(d?.donut);
     slab(monthly, d?.monthlyBreak || []);
     controls.innerHTML = '';
   }
 
-  // simple donut using conic gradient
-  window.CreoDonut = window.CreoDonut || function(container, slices){
+  // pie via conic gradient
+  window.CreoPie = function(container, slices){
     const total = slices.reduce((a,s)=>a + Math.max(0, Number(s.v)||0), 0);
     let acc = 0;
     const stops = slices.map(s=>{
-      const pct = total>0 ? (Math.max(0, Number(s.v)||0)/total)*100 : 0;
-      const seg = `${s.c} ${acc}% ${acc+pct}%`;
-      acc += pct;
+      const v = Math.max(0, Number(s.v)||0);
+      const p = total>0 ? (v/total)*100 : 0;
+      const seg = `${s.c} ${acc}% ${acc+p}%`;
+      acc += p;
       return seg;
     }).join(', ');
     container.innerHTML = `
-      <div class="donut" style="background: conic-gradient(${stops});">
-        <div class="donut-center">${money(total)}<small>per month</small></div>
+      <div class="pie" style="background: conic-gradient(${stops});">
+        <div class="center">${money(total)}<small>per month</small></div>
       </div>`;
   };
 })();
