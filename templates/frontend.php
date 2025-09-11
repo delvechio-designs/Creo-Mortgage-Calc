@@ -1,85 +1,90 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
-$tabs = array_filter( $tabs, fn($k)=>$k!=='_theme', ARRAY_FILTER_USE_KEY );
+
+/** Pull tabs from your stored options */
+$tabs = is_array( get_option('creo_mc_tabs') ) ? get_option('creo_mc_tabs') : [];
+if ( empty($tabs) && function_exists('creo_mc_seed_tabs') ) {
+  $tabs = creo_mc_seed_tabs();
+  update_option('creo_mc_tabs', $tabs);
+}
+
+/** Prepare a simple ordered list of visible calc tabs */
+$ordered = [];
+foreach ($tabs as $key => $tab) {
+  if (substr($key,0,1)==='_') continue;
+  if (!is_array($tab) || empty($tab['enabled'])) continue;
+  $ordered[$key] = $tab;
+}
 ?>
-<div class="creo-calcs">
-  <div class="creo-calcs-nav">
-    <?php foreach ($tabs as $id=>$tab): ?>
-      <button class="creo-nav-btn" data-tab="<?php echo esc_attr($id); ?>"><?php echo esc_html($tab['label']); ?></button>
-    <?php endforeach; ?>
+<div class="creo-wrap">
+  <div class="creo-calcs-nav" role="tablist" aria-label="Calculator Tabs">
+    <?php $first = true; foreach ($ordered as $id => $t): ?>
+      <button class="creo-nav-btn<?php echo $first?' is-active':''; ?>"
+              role="tab"
+              data-tab="<?php echo esc_attr($id); ?>">
+        <?php echo esc_html($t['label'] ?? ucfirst($t['type'])); ?>
+      </button>
+    <?php $first = false; endforeach; ?>
   </div>
 
-  <?php foreach ($tabs as $id=>$tab): ?>
-    <section class="creo-calc" data-pane="<?php echo esc_attr($id); ?>" hidden>
+  <?php $first = true; foreach ($ordered as $id => $t): ?>
+    <section class="creo-calc"<?php echo $first?'':' hidden'; ?>
+             data-pane="<?php echo esc_attr($id); ?>">
       <div class="creo-grid">
-        <aside class="creo-panel">
-          <form class="creo-form" data-type="<?php echo esc_attr($tab['type']); ?>">
-            <!-- inputs are built by JS based on stored schema values so the same template can serve all types -->
-            <div class="creo-inputs"></div>
-            <button type="button" class="creo-cta"><?php echo esc_html($tab['data']['btn_text'] ?? 'GET A QUOTE'); ?></button>
+        <aside class="creo-left">
+          <form class="creo-form" data-type="<?php echo esc_attr($t['type']); ?>">
+            <div class="creo-panel-h">
+              <h3 class="creo-panel-title">
+                <?php echo esc_html($t['label'] ?? ucfirst($t['type']).' Calculator'); ?>
+              </h3>
+              <div class="creo-panel-tabs">
+                <!-- Slot for inner program toggles if you add them later -->
+              </div>
+            </div>
+            <div class="creo-inputs"><!-- JS builds inputs here --></div>
+            <button type="button" class="creo-cta"><?php echo esc_html( $tabs['_theme']['cta'] ?? 'GET A QUOTE' ); ?></button>
           </form>
         </aside>
 
-        <main class="creo-results">
-          <div class="creo-kpis"></div>
-          <div class="creo-cards">
+        <section class="creo-right">
+          <div class="creo-row kpis">
+            <div class="creo-kpis"><!-- JS fills KPI tiles --></div>
+          </div>
+
+          <div class="creo-row charts">
             <div class="creo-card">
-              <div class="creo-card-h">
-                <h3><?php echo esc_html( $tab['data']['pay_title'] ?? 'Payment Breakdown'); ?></h3>
-                <span class="tip" data-tip="<?php echo esc_attr( $tab['data']['pay_info'] ?? 'A breakdown of your total payment so you can see where money is allocated.'); ?>">i</span>
-              </div>
-              <div class="creo-flex">
-                <canvas class="creo-donut" width="240" height="240"></canvas>
-                <div class="creo-legend"></div>
-              </div>
-              <div class="creo-split">
-                <div class="creo-stack" data-role="monthly"></div>
-                <div class="creo-stack" data-role="total"></div>
+              <div class="creo-card-h"><h3>Payment Breakdown</h3></div>
+              <div class="creo-donut" aria-label="Payment breakdown chart"></div>
+              <div class="creo-legend"></div>
+            </div>
+            <div class="creo-card">
+              <div class="creo-card-h"><h3>Loan Details</h3></div>
+              <div class="creo-slab" data-role="monthly"><!-- JS fills --></div>
+            </div>
+          </div>
+
+          <div class="creo-row details">
+            <div class="creo-card">
+              <div class="creo-card-h"><h3>Total</h3></div>
+              <div class="creo-slab" data-role="total"><!-- JS fills --></div>
+            </div>
+            <div class="creo-card">
+              <div class="creo-card-h"><h3>Summary</h3></div>
+              <div class="creo-summary">
+                Results received from this calculator are for comparison only. We do not guarantee accuracy. Confirm all numbers with your loan officer.
               </div>
             </div>
+          </div>
 
-            <div class="creo-card" data-role="early">
-              <div class="creo-card-h">
-                <h3><?php echo esc_html( $tab['data']['early_title'] ?? 'Early Payoff Strategy'); ?></h3>
-                <span class="tip" data-tip="<?php echo esc_attr( $tab['data']['early_info'] ?? 'Add an extra payment and see how many months you can eliminate on the back end of the loan.'); ?>">i</span>
-              </div>
-              <div class="creo-form-inline">
-                <input type="number" step="1" min="0" value="0" data-ctl="early-extra">
-                <div class="creo-pill-group" data-ctl="early-frequency">
-                  <button data-v="monthly" class="is-active">Monthly</button>
-                  <button data-v="bi">Bi weekly</button>
-                  <button data-v="weekly">Weekly</button>
-                </div>
-              </div>
-              <div class="creo-early-out"></div>
-            </div>
-
-            <div class="creo-card" data-role="lump">
-              <div class="creo-card-h">
-                <h3><?php echo esc_html( $tab['data']['lump_title'] ?? 'Lump Sum Payment'); ?></h3>
-                <span class="tip" data-tip="<?php echo esc_attr( $tab['data']['lump_info'] ?? 'Shorten your loan term by paying a lump sum all to principal.'); ?>">i</span>
-              </div>
-              <div class="creo-form-inline">
-                <input type="number" step="100" min="0" value="0" data-ctl="lump-sum">
-                <div class="creo-pill-group" data-ctl="lump-frequency">
-                  <button data-v="one" class="is-active">One time</button>
-                  <button data-v="yearly">Yearly</button>
-                  <button data-v="quarterly">Quarterly</button>
-                </div>
-              </div>
-              <div class="creo-lump-out"></div>
-            </div>
-
-            <!-- DSCR, Fix & Flip, Refi comparison blocks will be dynamically injected by JS for the matching tab type -->
-            <div class="creo-dynamic"></div>
+          <div class="creo-row dynamic">
+            <div class="creo-dynamic"><!-- JS inserts type specific cards here --></div>
           </div>
 
           <p class="creo-disclaimer">
-            Results received from this calculator are designed for comparative purposes only, and accuracy is not guaranteed.
-            We do not guarantee the accuracy of any information or inputs by users of the software.
+            Results received from this calculator are designed for comparative purposes only, and accuracy is not guaranteed. Information such as interest rates, taxes, insurance, PMI payments, or dues are estimates and should be used for comparison only.
           </p>
-        </main>
+        </section>
       </div>
     </section>
-  <?php endforeach; ?>
+  <?php $first = false; endforeach; ?>
 </div>
