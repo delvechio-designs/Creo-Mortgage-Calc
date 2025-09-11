@@ -10,9 +10,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 if ( ! function_exists( 'creo_va_fee' ) ) {
   function creo_va_fee( $downPct, $firstUse = true, $tbl = [] ) {
-    // Down payment not usually relevant for refi, but keep signature consistent
     $pct = $firstUse ? floatval( $tbl['first_use'] ?? 2.15 ) : floatval( $tbl['after_first'] ?? 3.3 );
     return $pct / 100.0;
+  }
+}
+
+/** amortization helper is defined in purchase.php */
+if ( ! function_exists( 'creo_amort_payment' ) ) {
+  function creo_amort_payment($principal,$annual_rate,$years){
+    $i = ($annual_rate/100)/12;
+    $n = max(1, $years*12);
+    if ($i==0) return $principal/$n;
+    return $principal * ($i * pow(1+$i,$n)) / (pow(1+$i,$n) - 1);
   }
 }
 
@@ -56,14 +65,14 @@ function creo_calc_va_refinance( $d ) {
 
   // simple recoup months if saving
   $savingsM = max( 0, $piCurrent - $piNew );
-  $recoupMonths = $savingsM > 0 ? ceil( $costs / $savingsM ) : null;
+  $recoupMonths = $savingsM > 0 ? ceil( $costs / $savingsM ) : 0;
 
   return [
     'kpis' => [
       [ 'label' => 'Monthly Payment Increase',   'value' => $diffM ],
       [ 'label' => 'Total Interest Difference',  'value' => $interestNew - $interestCurrent ],
       [ 'label' => 'Refinance Costs',            'value' => $costs ],
-      [ 'label' => 'Time to Recoup Fees',        'value' => $recoupMonths ? $recoupMonths : 0 ],
+      [ 'label' => 'Time to Recoup Fees',        'value' => $recoupMonths ],
     ],
     'compare' => [
       'current'  => $piCurrent,

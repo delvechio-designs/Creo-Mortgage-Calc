@@ -21,6 +21,16 @@ if ( ! function_exists( 'creo_va_fee' ) ) {
   }
 }
 
+/** amortization helper is defined in purchase.php */
+if ( ! function_exists( 'creo_amort_payment' ) ) {
+  function creo_amort_payment($principal,$annual_rate,$years){
+    $i = ($annual_rate/100)/12;
+    $n = max(1, $years*12);
+    if ($i==0) return $principal/$n;
+    return $principal * ($i * pow(1+$i,$n)) / (pow(1+$i,$n) - 1);
+  }
+}
+
 function creo_calc_va_purchase( $d ) {
   $home   = floatval( $d['home_value'] ?? 200000 );
   $down   = floatval( $d['down_payment'] ?? 0 );
@@ -28,16 +38,14 @@ function creo_calc_va_purchase( $d ) {
   $rate   = floatval( $d['interest_rate'] ?? 6.5 );
   $years  = intval( $d['loan_terms'] ?? 30 );
 
-  $downPct = $home > 0 ? ( $down / $home ) * 100 : 0;
+  $downPct  = $home > 0 ? ( $down / $home ) * 100 : 0;
   $firstUse = isset( $d['first_use'] ) ? (bool) $d['first_use'] : true;
 
   $feePct = creo_va_fee( $downPct, $firstUse, $d['fee'] ?? [] );
   $feeAmt = $loan * $feePct;
   $loanWithFee = $loan + $feeAmt;
 
-  // amortization helper lives in purchase.php
   $piM = creo_amort_payment( $loanWithFee, $rate, $years );
-
   $totalMonths = $years * 12;
   $totalPaid   = $piM * $totalMonths;
   $interestTot = $totalPaid - $loanWithFee;
@@ -49,8 +57,9 @@ function creo_calc_va_purchase( $d ) {
       [ 'label' => 'Total Interest Paid', 'value' => $interestTot ],
     ],
     'fee' => [
-      'pct' => $feePct,
+      'pct'    => $feePct,
       'amount' => $feeAmt,
+      'first'  => $firstUse ? 1 : 0,
     ],
   ];
 }
