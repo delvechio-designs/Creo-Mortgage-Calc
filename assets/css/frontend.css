@@ -1,75 +1,105 @@
 /* shell and tabs */
-.creo-wrap{max-width:1200px;margin:0 auto;padding:16px 12px;font-family:Inter,system-ui,ui-sans-serif,Segoe UI,Roboto,Arial,sans-serif;color:#0f172a}
-.creo-calcs-nav{display:flex;gap:12px;border-bottom:1px solid #e5e7eb;margin-bottom:16px;padding:8px 4px}
-.creo-nav-btn{background:#fff;border:1px solid #e5e7eb;padding:10px 14px;border-radius:10px;font-weight:700;color:#111827;cursor:pointer}
-.creo-nav-btn.is-active{background:#111827;color:#fff;border-color:#111827}
-
-/* two column calculator frame */
-.creo-grid{display:grid;grid-template-columns:minmax(320px,360px) 1fr;gap:16px;align-items:start}
-@media (max-width:1024px){.creo-grid{grid-template-columns:1fr}}
-
-/* left panel */
-.creo-left{background:#111318;border-radius:14px;padding:16px;color:#e5e7eb}
-.creo-panel-title{margin:0 0 6px;font-size:16px;font-weight:800}
-
-/* form as two columns */
-.creo-left .creo-inputs{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px 12px;
-}
-.creo-left .creo-inputs .row{display:flex;flex-direction:column;gap:6px}
-.creo-left .creo-inputs .row label{font-size:12px;color:#a3a7b0}
-.creo-left .creo-inputs input,
-.creo-left .creo-inputs select{
-  width:100%;
-  background:#1a1e25;border:1px solid #2a2f3a;color:#e5e7eb;border-radius:10px;padding:10px 12px
-}
-.creo-left .creo-panel-h,.creo-left .creo-cta,.creo-left .creo-inputs .span-2{grid-column:1/-1}
-.creo-cta{width:100%;margin-top:10px;background:#f59e0b;border:none;color:#111827;border-radius:10px;font-weight:900;padding:12px 16px;cursor:pointer}
-@media (max-width:1024px){.creo-left .creo-inputs{grid-template-columns:1fr}}
-
-/* right panel layout */
-.creo-right{display:flex;flex-direction:column;gap:16px}
-.creo-row{display:grid;gap:16px}
-.row-one{grid-template-columns:1.5fr 1fr}
-.row-two{grid-template-columns:1fr 1fr}
-@media (max-width:1100px){.row-one,.row-two{grid-template-columns:1fr}}
-
-/* cards */
-.creo-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}
-.creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.creo-card-h h3{margin:0;font-size:15px}
-.rightcol{display:grid;grid-template-rows:auto auto;gap:16px}
-
-/* KPI tiles */
-.kpi-stack{display:grid;grid-template-columns:1fr;gap:12px}
-.kpi{background:#ecfdf5;border:1px solid #d1fae5;border-radius:14px;padding:14px}
-.kpi.neg{background:#fef2f2;border-color:#fee2e2}
-.kpi.dark{background:#0f172a;color:#e5e7eb;border-color:#0f172a}
-.kpi .small{font-size:12px;color:#065f46;margin-bottom:6px}
-.kpi.neg .small{color:#991b1b}
-.kpi .big{font-size:18px;font-weight:800}
-
-/* solid pie */
-.creo-donut{display:flex;align-items:center;justify-content:center;min-height:260px}
-.creo-donut .pie{width:240px;height:240px;border-radius:50%;position:relative}
-.creo-donut .center{
-  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-weight:800;font-size:22px;color:#111827
-}
-.creo-donut .center small{margin-top:4px;font-weight:600;font-size:12px;color:#6b7280}
-
-/* legend and slabs */
-.creo-legend{display:grid;grid-template-columns:1fr;gap:6px;margin-top:12px}
-.creo-legend .item{display:flex;gap:8px;align-items:center;font-size:13px}
-.creo-legend .swatch{width:12px;height:12px;border-radius:3px;border:1px solid #e5e7eb}
-.creo-slab div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb}
-.creo-slab div:last-child{border-bottom:none}
-
-.creo-disclaimer{font-size:12px;color:#6b7280;margin:4px 0 12px}
-
-/* stop theme wrappers from interfering */
-.creo-wrap .wp-block-columns,
-.creo-wrap .elementor-container,
-.creo-wrap .et_pb_row{display:contents}
+.creo-wrap{
+    /* removed max-width to allow full width */
+    width:100%;
+    margin:0 auto;
+    padding:24px 20px;
+    font-family:Inter,system-ui,ui-sans-serif,Segoe UI,Roboto,Arial,sans-serif;
+    color:#0f172a;
+  }
+  .creo-calcs-nav{display:flex;gap:12px;border-bottom:1px solid #e5e7eb;margin-bottom:18px;padding:8px 4px}
+  .creo-nav-btn{background:#fff;border:1px solid #e5e7eb;padding:10px 14px;border-radius:10px;font-weight:700;color:#111827;cursor:pointer}
+  .creo-nav-btn.is-active{background:#111827;color:#fff;border-color:#111827}
+  
+  /* two column calculator frame */
+  /* wider left form: grows with viewport but stays reasonable */
+  .creo-grid{
+    display:grid;
+    grid-template-columns:clamp(380px,34vw,560px) 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:1024px){.creo-grid{grid-template-columns:1fr}}
+  
+  /* left panel */
+  .creo-left{background:#111318;border-radius:14px;padding:18px;color:#e5e7eb}
+  .creo-panel-title{margin:0 0 8px;font-size:16px;font-weight:800}
+  
+  /* form as two columns, with larger spacing between pieces */
+  .creo-left .creo-inputs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px 16px; /* more vertical and horizontal space between fields */
+  }
+  .creo-left .creo-inputs .row{display:flex;flex-direction:column;gap:8px}
+  .creo-left .creo-inputs .row label{font-size:12px;color:#a3a7b0}
+  .creo-left .creo-inputs input,
+  .creo-left .creo-inputs select{
+    width:100%;
+    background:#1a1e25;
+    border:1px solid #2a2f3a;
+    color:#e5e7eb;
+    border-radius:10px;
+    padding:12px 14px; /* larger input padding for touch targets */
+  }
+  .creo-left .creo-panel-h,
+  .creo-left .creo-cta,
+  .creo-left .creo-inputs .span-2{grid-column:1/-1}
+  .creo-cta{
+    width:100%;
+    margin-top:6px;
+    background:#f59e0b;
+    border:none;
+    color:#111827;
+    border-radius:10px;
+    font-weight:900;
+    padding:14px 16px;
+    cursor:pointer
+  }
+  @media (max-width:1024px){.creo-left .creo-inputs{grid-template-columns:1fr}}
+  
+  /* right panel layout */
+  .creo-right{display:flex;flex-direction:column;gap:20px}
+  .creo-row{display:grid;gap:20px}
+  .row-one{grid-template-columns:1.5fr 1fr}
+  .row-two{grid-template-columns:1fr 1fr}
+  @media (max-width:1100px){.row-one,.row-two{grid-template-columns:1fr}}
+  
+  /* cards */
+  .creo-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+  .creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .creo-card-h h3{margin:0;font-size:15px}
+  .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
+  
+  /* KPI tiles */
+  .kpi-stack{display:grid;grid-template-columns:1fr;gap:14px}
+  .kpi{background:#ecfdf5;border:1px solid #d1fae5;border-radius:14px;padding:16px}
+  .kpi.neg{background:#fef2f2;border-color:#fee2e2}
+  .kpi.dark{background:#0f172a;color:#e5e7eb;border-color:#0f172a}
+  .kpi .small{font-size:12px;color:#065f46;margin-bottom:6px}
+  .kpi.neg .small{color:#991b1b}
+  .kpi .big{font-size:18px;font-weight:800}
+  
+  /* solid pie */
+  .creo-donut{display:flex;align-items:center;justify-content:center;min-height:280px}
+  .creo-donut .pie{width:260px;height:260px;border-radius:50%;position:relative}
+  .creo-donut .center{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-weight:800;font-size:22px;color:#111827
+  }
+  .creo-donut .center small{margin-top:4px;font-weight:600;font-size:12px;color:#6b7280}
+  
+  /* legend and slabs */
+  .creo-legend{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
+  .creo-legend .item{display:flex;gap:10px;align-items:center;font-size:13px}
+  .creo-legend .swatch{width:12px;height:12px;border-radius:3px;border:1px solid #e5e7eb}
+  .creo-slab div{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #e5e7eb}
+  .creo-slab div:last-child{border-bottom:none}
+  
+  .creo-disclaimer{font-size:12px;color:#6b7280;margin:4px 0 12px}
+  
+  /* stop theme wrappers from interfering */
+  .creo-wrap .wp-block-columns,
+  .creo-wrap .elementor-container,
+  .creo-wrap .et_pb_row{display:contents}
+  
