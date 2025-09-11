@@ -1,13 +1,16 @@
 /* global CREO_MC, window */
 (function(){
-  const state = { active:null, tabs: CREO_MC.tabs };
+  const state = { active:null, tabs: CREO_MC.tabs || {} };
 
-  function money(v){ 
+  function money(v){
     try { return (isFinite(v)?v:0).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
     catch(e){ return '$'+Number(v||0).toFixed(2); }
   }
+  function sum(arr){ return (arr||[]).reduce((a,s)=>a + (Number(s?.v)||0), 0); }
+  function percent(v){ return `${Number(v||0).toFixed(2)} %`; }
+  function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
 
-  // nav and panes
+  // nav
   const nav = document.querySelector('.creo-calcs-nav');
   const panes = [...document.querySelectorAll('.creo-calc')];
   if (panes.length) showPane(panes[0].dataset.pane);
@@ -28,7 +31,7 @@
     calculate(form, id);
   }
 
-  // build inputs based on tab schema snapshot we localized
+  // inputs per type
   function buildInputs(form, id){
     const type = form.dataset.type;
     const tab = state.tabs[id] || {};
@@ -141,6 +144,7 @@
     form.querySelector('.creo-cta').onclick = ()=>calculate(form,id);
   }
 
+  // VA fee tables passthrough
   function gather(form){
     const o = {};
     form.querySelectorAll('input,select').forEach(el=>{
@@ -172,6 +176,7 @@
     return o;
   }
 
+  // REST
   async function calculate(form, id){
     const type = form.dataset.type;
     const body = gather(form);
@@ -181,118 +186,298 @@
         headers:{'Content-Type':'application/json','X-WP-Nonce':CREO_MC.nonce},
         body: JSON.stringify(body)
       }).then(r=>r.json());
-      renderResults(document.querySelector(`.creo-calc[data-pane="${id}"]`), type, res||{});
-    }catch(e){
-      console.error(e);
-    }
+      render(document.querySelector(`.creo-calc[data-pane="${id}"]`), type, res||{});
+    }catch(e){ console.error(e); }
   }
 
-  function renderResults(pane, type, data){
-    // KPIs
+  // type specific rendering
+  function render(pane, type, data){
+    const topline = pane.querySelector('.topline');
     const kpis = pane.querySelector('.creo-kpis');
-    kpis.innerHTML = '';
-    (data.kpis||[]).forEach(k=>{
-      const el = document.createElement('div'); el.className='kpi';
-      const val = typeof k.value === 'number' ? money(k.value) : k.value;
-      el.innerHTML = `<div class="small">${k.label}</div><div class="big">${val}</div>`;
-      kpis.appendChild(el);
-    });
-
-    // Donut and legend
     const donut = pane.querySelector('.creo-donut');
     const legend = pane.querySelector('.creo-legend');
-    if (donut && data.donut && Array.isArray(data.donut.monthly)) {
-      const cols = data.donut.colors || ['#f59e0b','#22c55e','#fbbf24','#60a5fa','#a78bfa'];
-      const slices = data.donut.monthly.map((s,i)=>({v:Number(s.v)||0,c:cols[i%cols.length],label:s.label}));
-      window.CreoDonut(donut, slices);
-      legend.innerHTML = slices.map(s=>`<div class="item"><span class="swatch" style="background:${s.c}"></span><span>${s.label} ${money(s.v)}</span></div>`).join('');
-    } else {
-      donut.innerHTML = ''; legend.innerHTML = '';
-    }
-
-    // Detail blocks
     const m = pane.querySelector('[data-role="monthly"]');
     const t = pane.querySelector('[data-role="total"]');
-    m.innerHTML = (data.monthlyBreak||[]).map(r=>`<div><strong>${r.label}</strong><span>${money(r.v)}</span></div>`).join('');
-    t.innerHTML = (data.totalsBreak||[]).map(r=>`<div><strong>${r.label}</strong><span>${money(r.v)}</span></div>`).join('');
-
-    // Type specific cards
     const dyn = pane.querySelector('.creo-dynamic');
+
+    // reset shared areas
+    topline.innerHTML = '';
+    kpis.innerHTML = '';
+    donut.innerHTML = '';
+    legend.innerHTML = '';
+    m.innerHTML = '';
+    t.innerHTML = '';
     dyn.innerHTML = '';
 
-    if (type==='refinance' || type==='va_refinance'){
-      const c = data.compare || {};
-      dyn.innerHTML = `
-        <div class="creo-card">
-          <div class="creo-card-h"><h3>Monthly Payment Comparison</h3></div>
-          <div class="creo-slab">
-            <div><strong>Current Loan</strong><span>${money(c.current||0)}</span></div>
-            <div><strong>New Loan</strong><span>${money(c.new||0)}</span></div>
-            <div><strong>Monthly Payment Difference</strong><span>${money(c.diff||0)}</span></div>
-          </div>
-        </div>
-        <div class="creo-card">
-          <div class="creo-card-h"><h3>Total Interest Comparison</h3></div>
-          <div class="creo-slab">
-            <div><strong>Current Loan Remaining Interest</strong><span>${money(c.interest?.current||0)}</span></div>
-            <div><strong>New Loan Interest</strong><span>${money(c.interest?.new||0)}</span></div>
-            <div><strong>Total Interest Difference</strong><span>${money(c.interest?.diff||0)}</span></div>
-          </div>
-        </div>
-      `;
+    // helpers
+    function tiles(list, opts={}){
+      list.forEach(item=>{
+        const el = document.createElement('div');
+        el.className = `kpi${item.neg?' neg':''}${item.dark?' dark':''}`;
+        el.innerHTML = `<div class="small">${item.label||''}</div><div class="big">${item.isPct?percent(item.value):money(item.value)}</div>`;
+        if (item.raw) el.querySelector('.big').textContent = item.raw;
+        kpis.appendChild(el);
+      });
+      // pad to 4 for grid
+      while (kpis.children.length<4){ const pad=document.createElement('div'); pad.className='kpi'; pad.innerHTML='<div class="small">&nbsp;</div><div class="big">&nbsp;</div>'; kpis.appendChild(pad); }
     }
-
-    if (type==='dscr'){
-      const b = data.breakdown || {};
-      const r = data.returns || {};
-      dyn.innerHTML = `
-        <div class="creo-card">
-          <div class="creo-card-h"><h3>Deal Breakdown</h3></div>
-          <div class="creo-slab">
-            <div><strong>Loan Amount</strong><span>${money(b.loan_amount||0)}</span></div>
-            <div><strong>Down Payment</strong><span>${money(b.down_payment||0)}</span></div>
-            <div><strong>Mortgage Per Year</strong><span>${money(b.mortgage||0)}</span></div>
-            <div><strong>Origination Fee</strong><span>${money(b.origination||0)}</span></div>
-          </div>
-        </div>
-        <div class="creo-card">
-          <div class="creo-card-h"><h3>Return Metrics</h3></div>
-          <div class="creo-slab">
-            <div><strong>Cash Flow</strong><span>${money(r.cash_flow||0)}</span></div>
-            <div><strong>Cap Rate</strong><span>${Number(r.cap_rate||0).toFixed(2)}%</span></div>
-            <div><strong>Cash on Cash Return</strong><span>${Number(r.coc||0).toFixed(2)}%</span></div>
-            <div><strong>DSCR</strong><span>${Number(r.dscr||0).toFixed(2)}</span></div>
-          </div>
-        </div>
-      `;
+    function donutBlock(d){
+      if (!d || !Array.isArray(d.monthly)) return;
+      const cols = d.colors || ['#f59e0b','#22c55e','#fbbf24','#60a5fa','#a78bfa'];
+      const slices = d.monthly.map((s,i)=>({v:Number(s.v)||0,c:cols[i%cols.length],label:s.label}));
+      window.CreoDonut(donut, slices);
+      legend.innerHTML = slices.map(s=>`<div class="item"><span class="swatch" style="background:${s.c}"></span><span>${s.label} ${money(s.v)}</span></div>`).join('');
     }
+    function slab(el, rows){ el.innerHTML = rows.map(r=>`<div><strong>${r.label}</strong><span>${typeof r.v==='string'?r.v:money(r.v)}</span></div>`).join(''); }
 
-    if (type==='fixflip'){
-      const dd = data.deal || {};
-      const met = data.metrics || {};
-      dyn.innerHTML = `
-        <div class="creo-card"><div class="creo-card-h"><h3>Deal Breakdown</h3></div>
-          <div class="creo-slab">
-            <div><strong>Loan Amount</strong><span>${money(dd.loan_amount||0)}</span></div>
-            <div><strong>Down Payment</strong><span>${money(dd.down_payment||0)}</span></div>
-            <div><strong>Monthly Interest Payment</strong><span>${money(dd.monthly_interest||0)}</span></div>
-            <div><strong>Total Interest Over Term</strong><span>${money(dd.interest_over_term||0)}</span></div>
-            <div><strong>Origination Fee Amount</strong><span>${money(dd.origination||0)}</span></div>
-            <div><strong>Other Closing Costs Amount</strong><span>${money(dd.other_closing||0)}</span></div>
-            <div><strong>Cost To Sell Amount</strong><span>${money(dd.cost_to_sell||0)}</span></div>
+    // switch per type to match your screenshots
+    switch(type){
+
+      case 'affordability': {
+        // KPI structure: monthly payment, loan amount, two DTI tiles
+        const a = data.afford || {};
+        tiles([
+          {label:'Monthly Mortgage Payment', value:a.monthly_payment ?? sum(data?.donut?.monthly||[])},
+          {label:'Loan Amount', value:a.loan_amount ?? 0},
+          {label:'Your Debt to Income Ratio', raw:(a.dti_you ?? '0.00% / 0.00%')},
+          {label:'Allowable Debt to Income Ratio', raw:(a.dti_allowed ?? '50% / 50%')}
+        ]);
+
+        donutBlock(data.donut);
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+
+        // right side cards: purchase price slider, down payment slider, summary text
+        dyn.innerHTML = `
+          <div class="creo-card"><div class="creo-card-h"><h3>Purchase Price</h3></div>
+            <div class="creo-slab"><div><strong>Price</strong><span>${money(a.purchase_price||0)}</span></div></div>
           </div>
-        </div>
-        <div class="creo-card"><div class="creo-card-h"><h3>Deal Metrics</h3></div>
-          <div class="creo-slab">
-            <div><strong>Closing Costs</strong><span>${money(met.closing_costs||0)}</span></div>
-            <div><strong>Carrying Costs</strong><span>${money(met.carrying_costs||0)}</span></div>
-            <div><strong>Borrower Equity Needed</strong><span>${money(met.borrower_equity||0)}</span></div>
-            <div><strong>Total Cash in Deal</strong><span>${money(met.total_cash_in_deal||0)}</span></div>
+          <div class="creo-card"><div class="creo-card-h"><h3>Down Payment</h3></div>
+            <div class="creo-slab"><div><strong>Down</strong><span>${money(a.down_payment||0)}</span></div></div>
+          </div>`;
+        break;
+      }
+
+      case 'purchase':
+      case 'va_purchase': {
+        // top pill row per screenshot
+        const pills = `
+          <div class="pill-row">
+            <div class="pill"><div class="label">Savings</div><div class="value">${money(data.savings ?? 0)}</div></div>
+            <div class="pill"><div class="label">Payment Amount</div><div class="value">${money(sum(data?.donut?.monthly||[]))}</div></div>
+            <div class="pill"><div class="label">Shorten Loan Term By</div><div class="value">${data.shorten_term_by ?? '0 months'}</div></div>
+          </div>`;
+        topline.innerHTML = pills;
+
+        // KPI row: three tiles from data.kpis, pad to 4
+        const k = Array.isArray(data.kpis)?data.kpis.slice(0,3):[];
+        const mapped = k.map(x=>{
+          const isPct = typeof x.value==='string' && x.value.trim().endsWith('%');
+          return {label:x.label, value:isPct?parseFloat(x.value):Number(x.value||0), isPct:isPct};
+        });
+        tiles(mapped);
+
+        donutBlock(data.donut);
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+
+        // right dynamic cards: early payoff, lump sum
+        dyn.innerHTML = `
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Early Payoff Strategy</h3></div>
+            <div class="creo-slab">
+              <div><strong>Additional Monthly</strong><span>${money(data.early_extra||0)}</span></div>
+              <div><strong>Increase Frequency</strong><span>${data.early_freq || 'Monthly'}</span></div>
+            </div>
           </div>
-        </div>
-      `;
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Lump Sum Payment</h3></div>
+            <div class="creo-slab">
+              <div><strong>Lump Sum Addition</strong><span>${money(data.lump_sum||0)}</span></div>
+              <div><strong>Frequency</strong><span>${data.lump_freq || 'One time'}</span></div>
+            </div>
+          </div>`;
+        break;
+      }
+
+      case 'refinance':
+      case 'va_refinance': {
+        const c = data.compare || {};
+        const diff = Number(c.diff||0);
+        topline.innerHTML = `<div class="banner${diff>0?' neg':''}">Your monthly payment will ${diff>0?'increase':'decrease'} ${money(Math.abs(diff))} per month.</div>`;
+
+        tiles([
+          {label:'Monthly Payment ' + (diff>0?'Increase':'Decrease'), value:Math.abs(diff), neg:diff>0},
+          {label:'Total Interest Difference', value:Math.abs(Number(c.interest?.diff||0)), neg:Number(c.interest?.diff||0)>0},
+          {label:'Refinance Costs', value:Number(data.costs||0)},
+          {label:'Time to Recoup Fees', raw:(data.recoup_time || '--')}
+        ]);
+
+        // hide donut and show two comparison cards in dynamic
+        donut.innerHTML = ''; legend.innerHTML = '';
+        dyn.innerHTML = `
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Monthly Payment Comparison</h3></div>
+            <div class="creo-slab">
+              <div><strong>Current Loan</strong><span>${money(c.current||0)}</span></div>
+              <div><strong>New Loan</strong><span>${money(c.new||0)}</span></div>
+              <div><strong>Monthly Payment Difference</strong><span>${money(diff)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Total Interest Comparison</h3></div>
+            <div class="creo-slab">
+              <div><strong>Current Loan Remaining Interest</strong><span>${money(c.interest?.current||0)}</span></div>
+              <div><strong>New Loan Interest</strong><span>${money(c.interest?.new||0)}</span></div>
+              <div><strong>Total Interest Difference</strong><span>${money(c.interest?.diff||0)}</span></div>
+            </div>
+          </div>`;
+        // totals slabs still show if provided
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+        break;
+      }
+
+      case 'dscr': {
+        tiles([
+          {label:'Cash Flow', value:Number(data?.returns?.cash_flow||0), neg:Number(data?.returns?.cash_flow||0)<0},
+          {label:'Cap Rate', raw:percent(data?.returns?.cap_rate||0)},
+          {label:'Cash on Cash Return', raw:percent(data?.returns?.coc||0)},
+          {label:'DSCR', raw:String(Number(data?.returns?.dscr||0).toFixed(2))}
+        ]);
+        // three cards like screenshot
+        dyn.innerHTML = `
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Deal Breakdown</h3></div>
+            <div class="creo-slab">
+              <div><strong>Loan Amount</strong><span>${money(data?.breakdown?.loan_amount||0)}</span></div>
+              <div><strong>Down Payment</strong><span>${money(data?.breakdown?.down_payment||0)}</span></div>
+              <div><strong>Mortgage Per Year</strong><span>${money(data?.breakdown?.mortgage||0)}</span></div>
+              <div><strong>Origination Fee Amount</strong><span>${money(data?.breakdown?.origination||0)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Deal Metrics</h3></div>
+            <div class="creo-slab">
+              <div><strong>Total Closing Costs</strong><span>${money(data?.metrics?.closing_costs||0)}</span></div>
+              <div><strong>Cash Needed to Close</strong><span>${money(data?.metrics?.cash_needed||0)}</span></div>
+              <div><strong>Operating Expenses</strong><span>${money(data?.metrics?.operating||0)}</span></div>
+              <div><strong>Net Operating Income</strong><span>${money(data?.metrics?.noi||0)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Return Metrics</h3></div>
+            <div class="creo-slab">
+              <div><strong>Cash Flow</strong><span>${money(data?.returns?.cash_flow||0)}</span></div>
+              <div><strong>Cap Rate</strong><span>${percent(data?.returns?.cap_rate||0)}</span></div>
+              <div><strong>Cash on Cash Return</strong><span>${percent(data?.returns?.coc||0)}</span></div>
+              <div><strong>DSCR</strong><span>${Number(data?.returns?.dscr||0).toFixed(2)}</span></div>
+            </div>
+          </div>`;
+        // hide donut row for DSCR
+        donut.innerHTML=''; legend.innerHTML='';
+        // monthly and totals slabs if provided
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+        break;
+      }
+
+      case 'fixflip': {
+        tiles([
+          {label:'Borrower Equity Needed', value:Number(data?.metrics?.borrower_equity||0)},
+          {label:'Net Profit', value:Number(data?.metrics?.net_profit||0)},
+          {label:'Return on Investment', raw:percent(data?.metrics?.roi||0)},
+          {label:'Loan to After Repaired Value', raw:percent(data?.metrics?.ltv_to_arv||0)}
+        ]);
+        dyn.innerHTML = `
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Deal Breakdown</h3></div>
+            <div class="creo-slab">
+              <div><strong>Loan Amount</strong><span>${money(data?.deal?.loan_amount||0)}</span></div>
+              <div><strong>Down Payment</strong><span>${money(data?.deal?.down_payment||0)}</span></div>
+              <div><strong>Monthly Interest Payment</strong><span>${money(data?.deal?.monthly_interest||0)}</span></div>
+              <div><strong>Total Interest Over Term</strong><span>${money(data?.deal?.interest_over_term||0)}</span></div>
+              <div><strong>Origination Fee Amount</strong><span>${money(data?.deal?.origination||0)}</span></div>
+              <div><strong>Other Closing Costs Amount</strong><span>${money(data?.deal?.other_closing||0)}</span></div>
+              <div><strong>Cost To Sell Amount</strong><span>${money(data?.deal?.cost_to_sell||0)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Deal Metrics</h3></div>
+            <div class="creo-slab">
+              <div><strong>Closing Costs</strong><span>${money(data?.metrics?.closing_costs||0)}</span></div>
+              <div><strong>Carrying Costs</strong><span>${money(data?.metrics?.carrying_costs||0)}</span></div>
+              <div><strong>Borrower Equity Needed</strong><span>${money(data?.metrics?.borrower_equity||0)}</span></div>
+              <div><strong>Total Cash in Deal</strong><span>${money(data?.metrics?.total_cash_in_deal||0)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Return Metrics</h3></div>
+            <div class="creo-slab">
+              <div><strong>Net Profit</strong><span>${money(data?.metrics?.net_profit||0)}</span></div>
+              <div><strong>ROI</strong><span>${percent(data?.metrics?.roi||0)}</span></div>
+              <div><strong>LTV to ARV</strong><span>${percent(data?.metrics?.ltv_to_arv||0)}</span></div>
+            </div>
+          </div>`;
+        donut.innerHTML=''; legend.innerHTML='';
+        break;
+      }
+
+      case 'rentbuy': {
+        // top slider value tiles like screenshot
+        const y = Number(data?.year || 8);
+        topline.innerHTML = `
+          <div class="big-tiles">
+            <div class="kpi"><div class="small">Year</div><div class="big">${y}</div></div>
+            <div class="kpi"><div class="small">Buy Gain</div><div class="big">${money(data?.buy_gain||0)}</div></div>
+          </div>`;
+        tiles([
+          {label:'Buy', value:Number(data?.buy_total||0)},
+          {label:'Rent', value:Number(data?.rent_total||0)},
+        ]);
+
+        // results summary panel on the left and pink cards on the right
+        dyn.innerHTML = `
+          <div class="creo-card">
+            <div class="creo-card-h"><h3>Results Summary</h3></div>
+            <div class="creo-slab">
+              <div><strong>Buying</strong><span>${money(data?.summary?.buy||0)}</span></div>
+              <div><strong>Renting</strong><span>${money(data?.summary?.rent||0)}</span></div>
+              <div><strong>Adjusted Net Cash Savings</strong><span>${money(data?.summary?.savings||0)}</span></div>
+            </div>
+          </div>
+          <div class="creo-card"><div class="creo-card-h"><h3>Out of Pocket Cost</h3></div><div class="creo-slab"><div><strong>Cost</strong><span>${money(data?.oop_cost||0)}</span></div></div></div>
+          <div class="creo-card"><div class="creo-card-h"><h3>Financial Gain</h3></div><div class="creo-slab"><div><strong>Gain</strong><span>${money(data?.gain||0)}</span></div></div></div>
+          <div class="creo-card"><div class="creo-card-h"><h3>Summary</h3></div><div class="creo-slab"><div><strong>Note</strong><span>${data?.note || ''}</span></div></div></div>`;
+        donut.innerHTML=''; legend.innerHTML='';
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+        break;
+      }
+
+      default: {
+        // generic safe render
+        tiles(Array.isArray(data.kpis)?data.kpis.map(x=>({label:x.label,value:Number(x.value||0)})):[]);
+        donutBlock(data.donut);
+        slab(m, data.monthlyBreak||[]);
+        slab(t, data.totalsBreak||[]);
+      }
     }
   }
 
-  function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+  // donut util
+  window.CreoDonut = window.CreoDonut || function(container, slices){
+    const total = slices.reduce((a,s)=>a + Math.max(0, Number(s.v)||0), 0);
+    let acc = 0;
+    const stops = slices.map(s=>{
+      const pct = total>0 ? (Math.max(0, Number(s.v)||0)/total)*100 : 0;
+      const str = `${s.c} ${acc}% ${acc+pct}%`;
+      acc += pct;
+      return str;
+    }).join(', ');
+    container.innerHTML = `
+      <div class="donut" style="background: conic-gradient(${stops});">
+        <div class="donut-center">${money(total)}<small>per month</small></div>
+      </div>`;
+  };
 })();

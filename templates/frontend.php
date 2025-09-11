@@ -1,14 +1,14 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/** Pull tabs from your stored options */
+/** Load tabs from options or seed once */
 $tabs = is_array( get_option('creo_mc_tabs') ) ? get_option('creo_mc_tabs') : [];
 if ( empty($tabs) && function_exists('creo_mc_seed_tabs') ) {
   $tabs = creo_mc_seed_tabs();
   update_option('creo_mc_tabs', $tabs);
 }
 
-/** Prepare a simple ordered list of visible calc tabs */
+/** Only enabled tabs render */
 $ordered = [];
 foreach ($tabs as $key => $tab) {
   if (substr($key,0,1)==='_') continue;
@@ -37,51 +37,55 @@ foreach ($tabs as $key => $tab) {
               <h3 class="creo-panel-title">
                 <?php echo esc_html($t['label'] ?? ucfirst($t['type']).' Calculator'); ?>
               </h3>
-              <div class="creo-panel-tabs">
-                <!-- Slot for inner program toggles if you add them later -->
-              </div>
             </div>
-            <div class="creo-inputs"><!-- JS builds inputs here --></div>
-            <button type="button" class="creo-cta"><?php echo esc_html( $tabs['_theme']['cta'] ?? 'GET A QUOTE' ); ?></button>
+            <div class="creo-inputs"></div>
+            <button type="button" class="creo-cta"><?php echo esc_html($tabs['_theme']['cta'] ?? 'GET A QUOTE'); ?></button>
           </form>
         </aside>
 
         <section class="creo-right">
+          <!-- type specific headline banners or pill rows go here -->
+          <div class="topline"></div>
+
+          <!-- KPI tiles: purchase and VA purchase show 3 + pink pill row, refinance shows 4 green tiles, DSCR and Fix&Flip show 4 etc -->
           <div class="creo-row kpis">
-            <div class="creo-kpis"><!-- JS fills KPI tiles --></div>
+            <div class="creo-kpis"></div>
           </div>
 
+          <!-- core charts row used by purchase, VA purchase, affordability -->
           <div class="creo-row charts">
-            <div class="creo-card">
+            <div class="creo-card chart-card">
               <div class="creo-card-h"><h3>Payment Breakdown</h3></div>
-              <div class="creo-donut" aria-label="Payment breakdown chart"></div>
+              <div class="creo-donut"></div>
               <div class="creo-legend"></div>
             </div>
-            <div class="creo-card">
+            <div class="creo-card details-card">
               <div class="creo-card-h"><h3>Loan Details</h3></div>
-              <div class="creo-slab" data-role="monthly"><!-- JS fills --></div>
+              <div class="creo-slab" data-role="monthly"></div>
             </div>
           </div>
 
+          <!-- totals and summary row -->
           <div class="creo-row details">
-            <div class="creo-card">
+            <div class="creo-card total-card">
               <div class="creo-card-h"><h3>Total</h3></div>
-              <div class="creo-slab" data-role="total"><!-- JS fills --></div>
+              <div class="creo-slab" data-role="total"></div>
             </div>
-            <div class="creo-card">
+            <div class="creo-card summary-card">
               <div class="creo-card-h"><h3>Summary</h3></div>
               <div class="creo-summary">
-                Results received from this calculator are for comparison only. We do not guarantee accuracy. Confirm all numbers with your loan officer.
+                Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.
               </div>
             </div>
           </div>
 
+          <!-- type specific blocks live here  refinance comps, DSCR metrics, Fix&Flip tables, Affordability sliders, Rent vs Buy, etc -->
           <div class="creo-row dynamic">
-            <div class="creo-dynamic"><!-- JS inserts type specific cards here --></div>
+            <div class="creo-dynamic"></div>
           </div>
 
           <p class="creo-disclaimer">
-            Results received from this calculator are designed for comparative purposes only, and accuracy is not guaranteed. Information such as interest rates, taxes, insurance, PMI payments, or dues are estimates and should be used for comparison only.
+            Results received from this calculator are designed for comparative purposes only. Information such as rates, taxes, insurance and dues are estimates and should be used for comparison only.
           </p>
         </section>
       </div>
