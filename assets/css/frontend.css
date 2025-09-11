@@ -1,0 +1,196 @@
+.creo-calcs { 
+    --brand:#0ea5e9; 
+    --accent:#16a34a; 
+    --panel:#0f1115; 
+    --panelText:#e5e7eb; 
+    --muted:#94a3b8; 
+    --card:#ffffff; 
+    --kpi:#eefbf1; 
+}
+.creo-calcs-nav { 
+    display:flex; 
+    gap:16px; 
+    margin-bottom:16px; 
+    flex-wrap:wrap; 
+}
+.creo-nav-btn { 
+    background:#f1f5f9; 
+    border:1px solid #e5e7eb; 
+    padding:10px 14px; 
+    border-radius:8px; 
+    cursor:pointer; 
+}
+.creo-grid { 
+    display:grid; 
+    grid-template-columns:360px 1fr; 
+    gap:24px; 
+}
+.creo-panel { 
+    background:var(--panel); 
+    color:var(--panelText); 
+    border-radius:16px; 
+    padding:16px; 
+}
+.creo-form .row { 
+    margin-bottom:12px; 
+}
+.creo-form label { 
+    display:block; 
+    font-size:.9rem; 
+    margin-bottom:6px; 
+    color:#cbd5e1; 
+}
+.creo-form input, .creo-form select { 
+    width:100%; 
+    background:#1a1f2b; 
+    color:#e5e7eb; 
+    border:1px solid #2c3344; 
+    padding:10px 12px; 
+    border-radius:8px; 
+}
+.creo-cta { 
+    width:100%; 
+    background:#2563eb; 
+    color:#fff; 
+    border:0; 
+    padding:12px; 
+    border-radius:10px; 
+    margin-top:8px; 
+    font-weight:600; 
+    cursor:pointer; 
+}
+
+.creo-results { 
+    display:flex; 
+    flex-direction:column; 
+    gap:16px; 
+}
+.creo-kpis { 
+    display:grid; 
+    grid-template-columns:repeat(4,minmax(0,1fr)); 
+    gap:12px; 
+}
+.creo-kpis .kpi { 
+    background:#eff6ff; 
+    border-radius:12px; 
+    padding:14px; 
+}
+.kpi .big { 
+    font-size:1.25rem; 
+    font-weight:700; 
+}
+.kpi .small { 
+    font-size:.8rem; 
+    color:#334155; 
+}
+
+.creo-cards { 
+    display:grid; 
+    grid-template-columns:1fr 1fr; 
+    gap:16px; 
+}
+.creo-card { 
+    background:var(--card); 
+    border:1px solid #e5e7eb; 
+    border-radius:12px; 
+    padding:16px; 
+}
+.creo-card-h { 
+    display:flex; 
+    align-items:center; 
+    justify-content:space-between; 
+    margin-bottom:10px; 
+}
+.creo-card h3 { 
+    margin:0; 
+    font-size:1rem; 
+}
+.tip { 
+    width:20px; 
+    height:20px; 
+    border-radius:50%; 
+    background:#e2e8f0; 
+    display:inline-flex; 
+    align-items:center; 
+    justify-content:center; 
+    cursor:help; 
+    position:relative; 
+}
+.tip:hover::after { 
+    content:attr(data-tip); 
+    position:absolute; 
+    top:120%; 
+    left:0; 
+    background:#0f1115; 
+    color:#e5e7eb; 
+    padding:8px 10px; 
+    border-radius:8px; width:240px; font-size:.8rem; z-index:5; 
+}
+.creo-flex { 
+    display:flex; 
+    gap:16px; 
+    align-items:center; 
+}
+.creo-legend { 
+    display:grid; 
+    gap:6px; 
+}
+.creo-legend .item { 
+    display:flex; 
+    align-items:center; 
+    gap:8px; 
+}
+.creo-legend .swatch { 
+    width:10px; 
+    height:10px; 
+    border-radius:2px; 
+}
+
+.creo-split { 
+    display:grid; 
+    grid-template-columns:1fr 1fr; 
+    gap:16px; 
+}
+.creo-stack { 
+    display:grid; 
+    gap:4px; 
+    font-size:.9rem; 
+}
+.creo-form-inline { 
+    display:flex; 
+    gap:10px; 
+    align-items:center; 
+}
+.creo-pill-group { 
+    display:flex; 
+    gap:6px; 
+}
+.creo-pill-group button { 
+    border:1px solid #e5e7eb; 
+    background:#fff; 
+    border-radius:20px; 
+    padding:6px 12px; 
+    cursor:pointer; 
+}
+.creo-pill-group button.is-active { 
+    background:#111827; 
+    color:#fff; 
+    border-color:#111827; 
+}
+
+.creo-disclaimer { 
+    font-size:.8rem; 
+    color:#475569; 
+    margin-top:8px; 
+}
+@media (max-width: 980px) {
+  .creo-grid { 
+    grid-template-columns:1fr; 
+}
+  .creo-cards { 
+    grid-template-columns:1fr; 
+}
+  .creo-kpis { 
+    grid-template-columns:1fr 1fr; 
+}
+}

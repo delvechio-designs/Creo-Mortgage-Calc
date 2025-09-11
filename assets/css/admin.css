@@ -1,0 +1,54 @@
+.creo-tabs { 
+    display:flex; 
+    gap:.5rem; 
+    margin:1rem 0; 
+    flex-wrap:wrap; 
+}
+.creo-tab { 
+    background:#fff; 
+    border:1px solid #d1d5db; 
+    padding:.5rem .75rem; 
+    border-radius:6px; 
+    text-decoration:none; 
+    color:#111; 
+    display:inline-flex; 
+    align-items:center; 
+    gap:.5rem; 
+}
+.creo-tab.is-active { 
+    border-color:#0ea5e9; 
+    box-shadow:0 0 0 2px rgba(14,165,233,.15) inset; 
+}
+.creo-tab.add { 
+    background:#f1f5f9; 
+    border-style:dashed; 
+    cursor:pointer; 
+}
+.creo-tab .rename,.creo-tab .delete { 
+    background:transparent; 
+    border:0; cursor:pointer; 
+    color:#6b7280; 
+}
+.creo-group { 
+    background:#fff; 
+    border:1px solid #e5e7eb; 
+    border-radius:8px; 
+    padding:1rem; 
+    margin:1rem 0; 
+}
+.creo-fields { 
+    display:grid; 
+    grid-template-columns:repeat(2,minmax(260px,1fr)); 
+    gap:12px 24px; 
+}
+.creo-field { 
+    display:flex; 
+    flex-direction:column; 
+}
+.creo-field-label { 
+    font-weight:600; 
+    margin-bottom:.25rem; 
+}
+.creo-toggle input { 
+    margin-right:.25rem; 
+}
