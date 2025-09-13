@@ -1,11 +1,13 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-function creo_amort_payment($principal,$annual_rate,$years){
-  $i = ($annual_rate/100)/12;
-  $n = max(1, $years*12);
-  if ($i==0) return $principal/$n;
-  return $principal * ($i * pow(1+$i,$n)) / (pow(1+$i,$n) - 1);
+if ( ! function_exists('creo_amort_payment') ) {
+  function creo_amort_payment($principal,$annual_rate,$years){
+    $i = ($annual_rate/100)/12;
+    $n = max(1, $years*12);
+    if ($i==0) return $principal/$n;
+    return $principal * ($i * pow(1+$i,$n)) / (pow(1+$i,$n) - 1);
+  }
 }
 
 function creo_calc_purchase($d){
@@ -18,6 +20,7 @@ function creo_calc_purchase($d){
   $insY   = floatval($d['ins_yearly'] ?? 1200);
   $hoaM   = floatval($d['hoa_month'] ?? 0);
   $pmiY   = floatval($d['pmi_yearly'] ?? 0);
+
   $piM    = creo_amort_payment($loan,$rate,$years);
 
   $taxM = $taxY/12;
@@ -28,12 +31,6 @@ function creo_calc_purchase($d){
   $totalPaid = $totalM * ($years*12);
   $interestTotal = $piM*($years*12) - $loan;
 
-  $kpis = [
-    ['label'=>'All Payment','value'=>$totalPaid],
-    ['label'=>'Total Loan Amount','value'=>$loan],
-    ['label'=>'Total Interest Paid','value'=>$interestTotal],
-  ];
-
   $slices = [
     ['k'=>'pni','label'=>'Principal & interest','v'=>round($piM,2)],
     ['k'=>'tax','label'=>'Taxes','v'=>round($taxM,2)],
@@ -43,7 +40,11 @@ function creo_calc_purchase($d){
   ];
 
   return [
-    'kpis'=>$kpis,
+    'kpis'=>[
+      ['label'=>'All Payment','value'=>$totalPaid],
+      ['label'=>'Total Loan Amount','value'=>$loan],
+      ['label'=>'Total Interest Paid','value'=>$interestTotal],
+    ],
     'donut'=>[
       'monthly'=>$slices,
       'colors'=>['#f59e0b','#22c55e','#fbbf24','#60a5fa','#a78bfa'],
@@ -61,5 +62,6 @@ function creo_calc_purchase($d){
       ['label'=>'Total Payment','v'=>$totalPaid],
       ['label'=>'Total Interest','v'=>$interestTotal],
     ],
+    'down_payment' => $down,
   ];
 }

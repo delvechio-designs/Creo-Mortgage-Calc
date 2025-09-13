@@ -1,12 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/**
- * Frontend shell for Creo Mortgage Calculators
- * Left: dark form panel
- * Right: two row results layout for all calculators
- */
-
 // fetch enabled tabs in saved order
 $tabs = get_option('creo_mc_tabs');
 if (!is_array($tabs)) { $tabs = []; }
@@ -32,7 +26,11 @@ foreach ($tabs as $id => $t) {
         <aside class="creo-left">
           <form class="creo-form" data-type="<?php echo esc_attr($tab['type']); ?>">
             <div class="creo-panel-h">
-              <h3 class="creo-panel-title"><?php echo esc_html(($tab['label'] ?? ucfirst($tab['type'])) . ' Calculator'); ?></h3>
+              <?php
+                $label = $tab['label'] ?? ucfirst($tab['type']);
+                $title = stripos($label,'calculator') !== false ? $label : ($label.' Calculator');
+              ?>
+              <h3 class="creo-panel-title"><?php echo esc_html($title); ?></h3>
             </div>
             <div class="creo-inputs"><!-- JS fills fields --></div>
             <button type="button" class="creo-cta"><?php echo esc_html($tabs['_theme']['cta'] ?? 'GET A QUOTE'); ?></button>
@@ -68,10 +66,6 @@ foreach ($tabs as $id => $t) {
               </div>
             </div>
           </div>
-
-          <p class="creo-disclaimer">
-            Results received from this calculator are designed for comparative purposes only. Information such as rates, taxes, insurance and dues are estimates and should be used for comparison only.
-          </p>
         </section>
       </div>
     </section>
