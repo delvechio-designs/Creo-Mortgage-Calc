@@ -38,6 +38,10 @@ function creo_calc_va_purchase( $d ) {
   $rate   = floatval( $d['interest_rate'] ?? 6.5 );
   $years  = intval( $d['loan_terms'] ?? 30 );
 
+  $taxY = floatval( $d['tax_yearly'] ?? $d['property_tax'] ?? 1200 );
+  $insY = floatval( $d['ins_yearly'] ?? 1200 );
+  $hoaM = floatval( $d['hoa_month'] ?? 0 );
+
   $downPct  = $home > 0 ? ( $down / $home ) * 100 : 0;
   $firstUse = isset( $d['first_use'] ) ? (bool) $d['first_use'] : true;
 
@@ -46,15 +50,39 @@ function creo_calc_va_purchase( $d ) {
   $loanWithFee = $loan + $feeAmt;
 
   $piM = creo_amort_payment( $loanWithFee, $rate, $years );
+  $taxM = $taxY / 12.0;
+  $insM = $insY / 12.0;
+  $hoa  = $hoaM;
+
+  $totalMonthly = $piM + $taxM + $insM + $hoa;
   $totalMonths = $years * 12;
-  $totalPaid   = $piM * $totalMonths;
-  $interestTot = $totalPaid - $loanWithFee;
+  $totalPaid   = $totalMonthly * $totalMonths;
+  $interestTot = $piM * $totalMonths - $loanWithFee;
 
   return [
     'kpis' => [
       [ 'label' => 'All Payment',         'value' => $totalPaid ],
       [ 'label' => 'Total Loan Amount',   'value' => $loanWithFee ],
       [ 'label' => 'Total Interest Paid', 'value' => $interestTot ],
+    ],
+    'donut' => [
+      'monthly' => [
+        [ 'label' => 'Principal & interest', 'v' => round( $piM, 2 ) ],
+        [ 'label' => 'Taxes',                'v' => round( $taxM, 2 ) ],
+        [ 'label' => 'Insurance',            'v' => round( $insM, 2 ) ],
+        [ 'label' => 'HOA Dues',             'v' => round( $hoa, 2 ) ],
+      ],
+      'colors'=>['#f59e0b','#22c55e','#fbbf24','#60a5fa'],
+    ],
+    'monthlyBreak' => [
+      [ 'label' => 'Home Value',             'v' => $home ],
+      [ 'label' => 'Base Mortgage Amount',   'v' => $loan ],
+      [ 'label' => 'VA Funding Fee',         'v' => $feeAmt ],
+      [ 'label' => 'Total Loan Amount',      'v' => $loanWithFee ],
+      [ 'label' => 'Monthly Principal & interest', 'v' => $piM ],
+      [ 'label' => 'Monthly Property Tax',   'v' => $taxM ],
+      [ 'label' => 'Monthly Home Insurance', 'v' => $insM ],
+      [ 'label' => 'Monthly HOA Fee',        'v' => $hoa ],
     ],
     'fee' => [
       'pct'    => $feePct,

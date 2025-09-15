@@ -39,14 +39,19 @@
 /* right panel layout */
 .creo-right{display:flex;flex-direction:column;gap:20px}
 .creo-row{display:grid;gap:20px}
+.creo-row.is-empty{display:none}
 .row-one{grid-template-columns:1.5fr 1fr}
 .row-two{grid-template-columns:1fr 1fr}
 @media (max-width:1100px){.row-one,.row-two{grid-template-columns:1fr}}
 
 /* cards */
 .creo-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
+.creo-card.info-card{background:#f8fafc;border-color:#e2e8f0}
 .creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .creo-card-h h3{margin:0;font-size:15px}
+.creo-card-copy{margin:0 0 12px;font-size:13px;line-height:1.5;color:#475569}
+.creo-card.summary-card .creo-summary{font-size:13px;line-height:1.6;color:#475569}
+.creo-card.summary-card .creo-summary strong{color:#0f172a}
 .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
 
 /* KPI tiles */
@@ -84,6 +89,20 @@
 .range input[type=range]::-webkit-slider-thumb{appearance:none;margin-top:-6px;width:18px;height:18px;border-radius:50%;background:#111827;border:2px solid #fff;box-shadow:0 0 0 2px #111827}
 .range input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#111827;border:2px solid #fff;box-shadow:0 0 0 2px #111827}
 .range-meta{display:flex;justify-content:space-between;font-size:12px;color:#6b7280}
+
+/* bar comparison */
+.creo-bar-chart{display:grid;gap:12px}
+.creo-bar-chart .bar-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;font-size:13px;color:#1f2937}
+.creo-bar-chart .bar-row .bar{background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden}
+.creo-bar-chart .bar-row .bar span{display:block;height:100%;background:#0ea5e9;border-radius:999px}
+.creo-bar-chart .bar-row.highlight .bar span{background:#16a34a}
+.creo-bar-chart .bar-row strong{font-size:13px;color:#0f172a}
+.creo-bar-chart .bar-row span:first-child{font-weight:600}
+
+/* metric bullets */
+.creo-bullets{list-style:none;padding:0;margin:0;display:grid;gap:8px;font-size:13px;color:#475569}
+.creo-bullets li{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px}
+.creo-bullets li strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:4px;color:#0f172a}
 
 /* disclaimer */
 .creo-disclaimer{font-size:12px;color:#6b7280;margin:4px 0 12px}
