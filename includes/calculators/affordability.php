@@ -24,6 +24,11 @@ function creo_calc_affordability($d){
   $pmiYearly = floatval($d['pmi_yearly'] ?? 3000);
   $hoaMonth  = floatval($d['hoa_month'] ?? 0);
 
+  $program   = isset($d['program']) ? sanitize_key($d['program']) : 'conv';
+  if (empty($program)) {
+    $program = 'conv';
+  }
+
   $loan      = max(0.01, floatval($d['loan_amount'] ?? ($home - $down)));
   $piM       = creo_amort_payment($loan,$rate,$years);
   $taxM      = ($home * $propPct) / 12.0;
@@ -36,8 +41,34 @@ function creo_calc_affordability($d){
   $frontDTI  = $incomeM>0 ? ($totalM/$incomeM)*100 : 0;
   $backDTI   = $incomeM>0 ? (($totalM+$debtsM)/$incomeM)*100 : 0;
 
-  // Allowable (can be extended to pull from saved conv/va/usda settings)
-  $allowFront = 50; $allowBack = 50;
+  // Allowable ratios pulled from calculator settings per program
+  $allowFront = 50;
+  $allowBack  = 50;
+  $tabs = get_option('creo_mc_tabs');
+  if (is_array($tabs)) {
+    foreach ($tabs as $tab) {
+      if (!is_array($tab)) { continue; }
+      if (($tab['type'] ?? '') !== 'affordability') { continue; }
+      $cfg = $tab['data'] ?? [];
+      $map = [
+        'conv'  => ['dti_allow','inc_allow'],
+        'fha'   => ['dti_allow_fha','inc_allow_fha'],
+        'va'    => ['dti_allow_va','inc_allow_va'],
+        'usda'  => ['dti_allow_usda','inc_allow_usda'],
+        'jumbo' => ['dti_allow_jumbo','inc_allow_jumbo'],
+      ];
+      if (isset($map[$program])) {
+        [$frontKey, $backKey] = $map[$program];
+        if ($frontKey && isset($cfg[$frontKey])) {
+          $allowFront = floatval($cfg[$frontKey]);
+        }
+        if ($backKey && isset($cfg[$backKey])) {
+          $allowBack = floatval($cfg[$backKey]);
+        }
+      }
+      break;
+    }
+  }
 
   return [
     'kpis'=>[
@@ -69,6 +100,7 @@ function creo_calc_affordability($d){
       'purchase_price' => $home,
       'down_payment'   => $down,
       'dti_you'        => sprintf('%.2f%% / %.2f%%',$frontDTI,$backDTI),
+      'program'        => $program,
       'dti_allowed'    => sprintf('%.0f%% / %.0f%%',$allowFront,$allowBack),
     ],
   ];

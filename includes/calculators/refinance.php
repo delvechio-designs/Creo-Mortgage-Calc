@@ -12,19 +12,25 @@ function creo_calc_refinance($d){
   $newRate = floatval($d['rate'] ?? 3);
   $newTerm = intval($d['term'] ?? 15);
 
+  $baseNew = $newBal + $cashOut + $costs;
+
   $piCurrent = creo_amort_payment($origAmt,$origRate,$origTerm);
-  $piNew     = creo_amort_payment($newBal + $cashOut + $costs,$newRate,$newTerm);
+  $piNew     = creo_amort_payment($baseNew,$newRate,$newTerm);
 
   $diffM = $piNew - $piCurrent;
 
   $interestCurrent = $piCurrent*($origTerm*12) - $origAmt;
-  $interestNew     = $piNew*($newTerm*12) - ($newBal + $cashOut + $costs);
+  $interestNew     = $piNew*($newTerm*12) - $baseNew;
+
+  $savingsM = max(0, $piCurrent - $piNew);
+  $recoupMonths = $savingsM > 0 ? ceil($costs / $savingsM) : 0;
 
   return [
     'kpis'=>[
       ['label'=>'Monthly Payment Increase','value'=>$diffM],
       ['label'=>'Total Interest Difference','value'=>$interestNew - $interestCurrent],
       ['label'=>'Refinance Costs','value'=>$costs],
+      ['label'=>'Time to Recoup Fees','value'=>$recoupMonths],
     ],
     'compare'=>[
       'current'=>$piCurrent,
@@ -35,6 +41,18 @@ function creo_calc_refinance($d){
         'new'=>$interestNew,
         'diff'=>$interestNew - $interestCurrent
       ]
-    ]
+    ],
+    'monthlyBreak'=>[
+      ['label'=>'Current Monthly Payment','v'=>$piCurrent],
+      ['label'=>'New Monthly Payment','v'=>$piNew],
+      ['label'=>'Monthly Payment Difference','v'=>$diffM],
+      ['label'=>'Cash Out Amount','v'=>$cashOut],
+      ['label'=>'Refinance Costs','v'=>$costs],
+    ],
+    'costs'=>$costs,
+    'rate'=>$newRate,
+    'term'=>$newTerm,
+    'cash_out'=>$cashOut,
+    'recoup_time'=>$recoupMonths,
   ];
 }
