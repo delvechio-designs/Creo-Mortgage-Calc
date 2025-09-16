@@ -84,10 +84,22 @@ function creo_calc_va_refinance( $d ) {
         'diff'    => $interestNew - $interestCurrent,
       ],
     ],
+    'monthlyBreak' => [
+      [ 'label' => 'Current Monthly Payment', 'v' => $piCurrent ],
+      [ 'label' => 'New Monthly Payment',     'v' => $piNew ],
+      [ 'label' => 'Monthly Payment Difference', 'v' => $diffM ],
+      [ 'label' => 'Cash Out Amount',         'v' => $cashOut ],
+      [ 'label' => 'Refinance Costs',         'v' => $costs ],
+    ],
     'fee' => [
       'pct'    => $feePct,
       'amount' => $feeAmt,
       'irrrl'  => $isIRRRL ? 1 : 0,
     ],
+    'costs'      => $costs,
+    'rate'       => $newRate,
+    'term'       => $newTerm,
+    'cash_out'   => $cashOut,
+    'recoup_time'=> $recoupMonths,
   ];
 }
