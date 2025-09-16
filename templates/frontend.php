@@ -31,6 +31,7 @@ foreach ($tabs as $id => $t) {
                 $title = stripos($label,'calculator') !== false ? $label : ($label.' Calculator');
               ?>
               <h3 class="creo-panel-title"><?php echo esc_html($title); ?></h3>
+              <span class="creo-program-pill" data-program-label hidden></span>
             </div>
             <div class="creo-inputs"><!-- JS fills fields --></div>
             <button type="button" class="creo-cta"><?php echo esc_html($tabs['_theme']['cta'] ?? 'GET A QUOTE'); ?></button>
