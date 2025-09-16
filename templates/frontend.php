@@ -46,9 +46,13 @@ foreach ($tabs as $id => $t) {
           <div class="creo-row row-four" data-role="row4"></div>
           <div class="creo-row row-five" data-role="row5"></div>
           <div class="creo-row row-six" data-role="row6"></div>
+
+          <div class="creo-disclaimer"></div>
+
           <div class="creo-disclaimer">
             Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.
           </div>
+
         </section>
       </div>
     </section>
