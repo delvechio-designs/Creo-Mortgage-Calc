@@ -20,7 +20,7 @@ foreach ($tabs as $id => $t) {
   </div>
 
   <?php $first = true; foreach ($enabled as $id => $tab): ?>
-    <section class="creo-calc"<?php echo $first ? '' : ' hidden'; ?> data-pane="<?php echo esc_attr($id); ?>">
+    <section class="creo-calc creo-type-<?php echo esc_attr($tab['type']); ?>"<?php echo $first ? '' : ' hidden'; ?> data-pane="<?php echo esc_attr($id); ?>">
       <div class="creo-grid">
         <!-- LEFT: dark form panel with two column inputs -->
         <aside class="creo-left">
@@ -31,6 +31,7 @@ foreach ($tabs as $id => $t) {
                 $title = stripos($label,'calculator') !== false ? $label : ($label.' Calculator');
               ?>
               <h3 class="creo-panel-title"><?php echo esc_html($title); ?></h3>
+              <span class="creo-program-pill" data-program-label hidden></span>
             </div>
             <div class="creo-inputs"><!-- JS fills fields --></div>
             <button type="button" class="creo-cta"><?php echo esc_html($tabs['_theme']['cta'] ?? 'GET A QUOTE'); ?></button>
@@ -38,33 +39,15 @@ foreach ($tabs as $id => $t) {
         </aside>
 
         <!-- RIGHT: fixed two row results layout -->
-        <section class="creo-right">
-          <!-- Row 1 -->
-          <div class="creo-row row-one">
-            <div class="creo-card chart-card">
-              <div class="creo-card-h"><h3>Payment Breakdown</h3></div>
-              <div class="creo-donut"></div>
-              <div class="creo-legend"></div>
-            </div>
-            <div class="kpi-stack" aria-label="Key metrics"><!-- JS --></div>
-          </div>
-
-          <!-- Row 2 -->
-          <div class="creo-row row-two">
-            <div class="creo-card details-card">
-              <div class="creo-card-h"><h3>Loan Details</h3></div>
-              <div class="creo-slab" data-role="monthly"><!-- JS --></div>
-            </div>
-
-            <div class="rightcol">
-              <div class="creo-card controls-card" data-role="controls"><!-- JS --></div>
-              <div class="creo-card summary-card">
-                <div class="creo-card-h"><h3>Summary</h3></div>
-                <div class="creo-summary">
-                  Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.
-                </div>
-              </div>
-            </div>
+        <section class="creo-right" data-type="<?php echo esc_attr($tab['type']); ?>">
+          <div class="creo-row row-one" data-role="row1"></div>
+          <div class="creo-row row-two" data-role="row2"></div>
+          <div class="creo-row row-three" data-role="row3"></div>
+          <div class="creo-row row-four" data-role="row4"></div>
+          <div class="creo-row row-five" data-role="row5"></div>
+          <div class="creo-row row-six" data-role="row6"></div>
+          <div class="creo-disclaimer">
+            Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.
           </div>
         </section>
       </div>
