@@ -20,6 +20,7 @@
     return m?Number(m.v)||0:null;
   }
 
+
   function setAffordProgramBadge(form, label){
     if (!form) return;
     const pill = form.querySelector('[data-program-label]');
@@ -34,6 +35,7 @@
       pill.hidden = true;
     }
   }
+
 
   function parseAffordPrograms(data){
     const cfg = data || {};
@@ -104,12 +106,15 @@
       if (hiddenProgram) hiddenProgram.remove();
       delete form.dataset.program;
       delete form.dataset.programLabel;
+
       setAffordProgramBadge(form, null);
+
     }
 
     inputs.oninput = debounce(()=>calculate(form,id), 250);
     const cta = form.querySelector('.creo-cta');
     if (cta){
+
       cta.onclick = ()=>{
         const link = cta.dataset.link;
         calculate(form,id);
@@ -117,6 +122,9 @@
           window.open(link, '_blank');
         }
       };
+
+      cta.onclick = ()=>calculate(form,id);
+
     }
   }
 
@@ -243,7 +251,9 @@
     } else {
       delete form.dataset.programLabel;
     }
+
     setAffordProgramBadge(form, currentProgram?.label);
+
 
     const cta = form.querySelector('.creo-cta');
     if (cta && !cta.dataset.defaultText){
@@ -279,7 +289,9 @@
           nav.querySelectorAll('.creo-subbtn').forEach(x => x.classList.remove('is-active'));
           btn.classList.add('is-active');
           updateCta(prog);
+
           setAffordProgramBadge(form, prog.label);
+
           calculate(form, id);
         });
         nav.appendChild(btn);
@@ -292,17 +304,29 @@
     container.appendChild(grid);
 
     const fields = [
+
       {name:'gross_income_monthly', label:'Gross Income', prefix:'$', note:'Per Month', step:100, min:0, decimals:0, default:7500},
+
+      {name:'gross_income_monthly', label:'Gross Income', prefix:'$', note:'Per Month', step:100, min:0, decimals:0, default:5500},
+
       {name:'monthly_debts', label:'Monthly Debts', prefix:'$', note:'Per Month', step:50, min:0, decimals:0, default:1500},
       {name:'home_price', label:'Home Price', prefix:'$', step:1000, min:0, decimals:0, default:200000},
       {name:'down_payment', label:'Down Payment', prefix:'$', step:1000, min:0, decimals:0, default:0},
       {name:'loan_terms', label:'Loan Term', note:'Years', step:1, min:1, decimals:0, default:30},
       {name:'interest_rate', label:'Interest Rate', note:'Rate', suffix:'%', step:0.125, min:0, decimals:3, default:6.5},
+
       {name:'prop_tax_pct', label:'Property Tax', note:'Yearly %', suffix:'%', step:0.1, min:0, decimals:2, default:0.8},
       {name:'homeowners_ins', label:'Homeowners Insurance', prefix:'$', note:'Per Year', step:100, min:0, decimals:0, default:1200},
       {name:'pmi_yearly', label:'PMI', prefix:'$', note:'Per Year', step:100, min:0, decimals:0, default:3000},
       {name:'hoa_month', label:'HOA Dues', prefix:'$', note:'Per Month', step:50, min:0, decimals:0, default:0},
       {name:'credit_score', label:'Credit Score', note:'Score', step:1, min:300, max:850, decimals:0, default:720, span:2},
+
+      {name:'prop_tax_pct', label:'Property Tax', note:'Yearly', suffix:'%', step:0.1, min:0, decimals:2, default:0.8},
+      {name:'homeowners_ins', label:'Homeowners Insurance', prefix:'$', note:'Yearly', step:100, min:0, decimals:0, default:1200},
+      {name:'pmi_yearly', label:'PMI', prefix:'$', note:'Yearly', step:100, min:0, decimals:0, default:3000},
+      {name:'hoa_month', label:'HOA Dues', prefix:'$', note:'Per Month', step:50, min:0, decimals:0, default:0},
+      {name:'credit_score', label:'Credit Score', note:'Score', step:1, min:300, max:850, decimals:0, default:720},
+
     ];
 
     fields.forEach(def => {
@@ -335,6 +359,15 @@
       const control = document.createElement('div');
       control.className = 'field-control';
 
+
+      const minus = document.createElement('button');
+      minus.type = 'button';
+      minus.className = 'field-btn minus';
+      minus.innerHTML = '−';
+      minus.setAttribute('aria-label', `Decrease ${def.label}`);
+      control.appendChild(minus);
+
+
       const shell = document.createElement('div');
       shell.className = 'field-shell';
       if (def.prefix){
@@ -365,6 +398,7 @@
 
       control.appendChild(shell);
 
+
       let plusBtn = null;
       let minusBtn = null;
       if (def.stepper !== false){
@@ -387,6 +421,14 @@
         control.appendChild(stepper);
       }
 
+      const plus = document.createElement('button');
+      plus.type = 'button';
+      plus.className = 'field-btn plus';
+      plus.innerHTML = '+';
+      plus.setAttribute('aria-label', `Increase ${def.label}`);
+      control.appendChild(plus);
+
+
       wrap.appendChild(control);
 
       const step = Number(def.step || 1);
@@ -402,11 +444,16 @@
         input.dispatchEvent(new Event('input',{bubbles:true}));
       }
 
+
       if (plusBtn) plusBtn.addEventListener('click', () => adjust(1));
       if (minusBtn) minusBtn.addEventListener('click', () => adjust(-1));
 
       input.addEventListener('focus', () => wrap.classList.add('is-focused'));
       input.addEventListener('blur', () => wrap.classList.remove('is-focused'));
+
+      minus.addEventListener('click', () => adjust(-1));
+      plus.addEventListener('click', () => adjust(1));
+
 
       return wrap;
     }
@@ -565,6 +612,7 @@
         legend.innerHTML = '';
       }
       return card;
+
     }
 
     function buildListCard(title, items, info, cls){
@@ -754,6 +802,351 @@
       setRow('r4', [buildSummaryCard(summaryText)]);
       return;
     }
+
+    }
+
+
+    function buildListCard(title, items, info, cls){
+      return createCard(title, {info, body: buildSlab(items || []), cls});
+    }
+
+    function buildSummaryCard(text, title){
+      const body = document.createElement('div');
+      body.className = 'creo-summary';
+      body.innerHTML = text || 'Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.';
+      return createCard(title || 'Summary', {body, cls:'summary-card'});
+    }
+
+    function buildRangeControls(homeVal, downVal, opts){
+      const card = createCard(opts?.title || 'Adjust Your Numbers', {cls:'controls-card'});
+      const priceTitle = document.createElement('div');
+      priceTitle.className = 'creo-card-h';
+      priceTitle.innerHTML = '<h3>Purchase Price</h3>';
+      const priceWrap = document.createElement('div');
+      priceWrap.className = 'range';
+      priceWrap.innerHTML = `<input type="range" min="50000" max="2000000" step="1000" name="_price" value="${homeVal}"><div class="range-meta"><span>${money(50000)}</span><span>${money(homeVal)}</span><span>${money(2000000)}</span></div>`;
+      const downTitle = document.createElement('div');
+      downTitle.className = 'creo-card-h';
+      downTitle.innerHTML = '<h3>Down Payment</h3>';
+      const downWrap = document.createElement('div');
+      downWrap.className = 'range';
+      const downMax = Math.max(0, Math.round((opts?.downMaxFactor ?? 0.5) * homeVal));
+      downWrap.innerHTML = `<input type="range" min="0" max="${downMax}" step="500" name="_down" value="${downVal}"><div class="range-meta"><span>${money(0)}</span><span>${money(downVal)}</span><span>${money(downMax)}</span></div>`;
+      card.appendChild(priceTitle);
+      card.appendChild(priceWrap);
+      card.appendChild(downTitle);
+      card.appendChild(downWrap);
+
+      const priceEl = card.querySelector('input[name="_price"]');
+      const downEl = card.querySelector('input[name="_down"]');
+
+      priceEl.oninput = debounce(e => {
+        const v = parseFloat(e.target.value||0);
+        if (opts?.homeField) form.querySelector(`[name="${opts.homeField}"]`).value = v;
+        if (opts?.baseField){
+          const currentDown = parseFloat(form.querySelector(`[name="${opts.downField}"]`)?.value || 0);
+          form.querySelector(`[name="${opts.baseField}"]`).value = Math.max(0, v - currentDown);
+        }
+        const max = Math.max(0, Math.round((opts?.downMaxFactor ?? 0.5) * v));
+        downEl.max = max;
+        const spans = downEl.nextElementSibling?.querySelectorAll('span');
+        if (spans && spans[2]) spans[2].textContent = money(max);
+        calculate(form, id);
+      }, 80);
+
+      downEl.oninput = debounce(e => {
+        const v = parseFloat(e.target.value||0);
+        if (opts?.downField) form.querySelector(`[name="${opts.downField}"]`).value = v;
+        if (opts?.baseField){
+          const homeValCurrent = parseFloat(form.querySelector(`[name="${opts.homeField}"]`)?.value || 0);
+          form.querySelector(`[name="${opts.baseField}"]`).value = Math.max(0, homeValCurrent - v);
+        }
+        const spans = downEl.nextElementSibling?.querySelectorAll('span');
+        if (spans && spans[1]) spans[1].textContent = money(v);
+        calculate(form, id);
+      }, 80);
+
+      return card;
+    }
+
+    function pctText(v){
+      return `${Number(v || 0).toFixed(2)}%`;
+    }
+
+    const loanVal = byLabel(d?.monthlyBreak,'mortgage amount') ?? byLabel(d?.monthlyBreak,'loan amount');
+
+    if (copy.disclaimer && disclaimer){
+      disclaimer.textContent = copy.disclaimer;
+    }
+
+    // ------- Types -------
+    if (type === 'affordability'){
+      const totalM = sum(d?.donut?.monthly || []);
+      const homeVal = byLabel(d?.monthlyBreak, 'home value') ?? Number(form.querySelector('[name="home_price"]')?.value || 200000);
+
+
+    function buildListCard(title, items, info, cls){
+      return createCard(title, {info, body: buildSlab(items || []), cls});
+    }
+
+    function buildSummaryCard(text, title){
+      const body = document.createElement('div');
+      body.className = 'creo-summary';
+      body.innerHTML = text || 'Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.';
+      return createCard(title || 'Summary', {body, cls:'summary-card'});
+    }
+
+    function buildRangeControls(homeVal, downVal, opts){
+      const card = createCard(opts?.title || 'Adjust Your Numbers', {cls:'controls-card'});
+      const priceTitle = document.createElement('div');
+      priceTitle.className = 'creo-card-h';
+      priceTitle.innerHTML = '<h3>Purchase Price</h3>';
+      const priceWrap = document.createElement('div');
+      priceWrap.className = 'range';
+      priceWrap.innerHTML = `<input type="range" min="50000" max="2000000" step="1000" name="_price" value="${homeVal}"><div class="range-meta"><span>${money(50000)}</span><span>${money(homeVal)}</span><span>${money(2000000)}</span></div>`;
+      const downTitle = document.createElement('div');
+      downTitle.className = 'creo-card-h';
+      downTitle.innerHTML = '<h3>Down Payment</h3>';
+      const downWrap = document.createElement('div');
+      downWrap.className = 'range';
+      const downMax = Math.max(0, Math.round((opts?.downMaxFactor ?? 0.5) * homeVal));
+      downWrap.innerHTML = `<input type="range" min="0" max="${downMax}" step="500" name="_down" value="${downVal}"><div class="range-meta"><span>${money(0)}</span><span>${money(downVal)}</span><span>${money(downMax)}</span></div>`;
+      card.appendChild(priceTitle);
+      card.appendChild(priceWrap);
+      card.appendChild(downTitle);
+      card.appendChild(downWrap);
+
+      const priceEl = card.querySelector('input[name="_price"]');
+      const downEl = card.querySelector('input[name="_down"]');
+
+      priceEl.oninput = debounce(e => {
+        const v = parseFloat(e.target.value||0);
+        if (opts?.homeField) form.querySelector(`[name="${opts.homeField}"]`).value = v;
+        if (opts?.baseField){
+          const currentDown = parseFloat(form.querySelector(`[name="${opts.downField}"]`)?.value || 0);
+          form.querySelector(`[name="${opts.baseField}"]`).value = Math.max(0, v - currentDown);
+        }
+        const max = Math.max(0, Math.round((opts?.downMaxFactor ?? 0.5) * v));
+        downEl.max = max;
+        const spans = downEl.nextElementSibling?.querySelectorAll('span');
+        if (spans && spans[2]) spans[2].textContent = money(max);
+        calculate(form, id);
+      }, 80);
+
+      downEl.oninput = debounce(e => {
+        const v = parseFloat(e.target.value||0);
+        if (opts?.downField) form.querySelector(`[name="${opts.downField}"]`).value = v;
+        if (opts?.baseField){
+          const homeValCurrent = parseFloat(form.querySelector(`[name="${opts.homeField}"]`)?.value || 0);
+          form.querySelector(`[name="${opts.baseField}"]`).value = Math.max(0, homeValCurrent - v);
+        }
+        const spans = downEl.nextElementSibling?.querySelectorAll('span');
+        if (spans && spans[1]) spans[1].textContent = money(v);
+        calculate(form, id);
+      }, 80);
+
+      return card;
+    }
+
+    function pctText(v){
+      return `${Number(v || 0).toFixed(2)}%`;
+    }
+
+    const loanVal = byLabel(d?.monthlyBreak,'mortgage amount') ?? byLabel(d?.monthlyBreak,'loan amount');
+
+    if (copy.disclaimer && disclaimer){
+      disclaimer.textContent = copy.disclaimer;
+    }
+
+    // ------- Types -------
+    if (type === 'affordability'){
+      const totalM = sum(d?.donut?.monthly || []);
+      const homeVal = byLabel(d?.monthlyBreak, 'home value') ?? Number(form.querySelector('[name="home_price"]')?.value || 200000);
+      const downVal = Number(form.querySelector('[name="down_payment"]')?.value || 0);
+
+      const kpis = buildKpiStack([
+        {label:'Monthly Mortgage Payment', value: totalM, cls:'kpi-lg kpi-navy'},
+        {label:'Loan Amount', value: loanVal ?? 0, cls:'kpi-lg kpi-navy'},
+        {label:'Your Debt to Income Ratio', raw: String(d?.afford?.dti_you || '0.00% / 0.00%')},
+        {label:'Allowable Debt to Income Ratio', raw: String(d?.afford?.dti_allowed || '50% / 50%')}
+      ]);
+
+      setRow('r1', [
+        buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut),
+        kpis
+      ]);
+
+      setRow('r2', [
+        buildListCard('Loan Details', d?.monthlyBreak || []),
+        buildRangeControls(homeVal, downVal, {homeField:'home_price', downField:'down_payment'})
+      ]);
+
+      const dpPct = homeVal > 0 ? (downVal/homeVal) * 100 : 0;
+      const summaryText =
+        `Based on what you input today your <strong>Total Payment</strong> would be <strong>${money(totalM)}</strong>`+
+        ` on a <strong>Conventional Loan</strong> with a <strong>${dpPct.toFixed(1)}% Down Payment</strong>. `+
+        `Your <strong>Debt-to-Income Ratio</strong> is <strong>${d?.afford?.dti_you || '--'}</strong> `+
+        `and the maximum allowable on this program type is <strong>${d?.afford?.dti_allowed || '50%/50%'}</strong>. `+
+        `Please confirm all numbers for accuracy with your loan officer.`;
+
+      setRow('r3', [buildSummaryCard(summaryText)]);
+      return;
+    }
+
+    if (type === 'purchase' || type === 'va_purchase'){
+      const totalMonthly = sum(d?.donut?.monthly || []);
+      const homeVal = byLabel(d?.monthlyBreak, 'home value') ?? Number(form.querySelector('[name="home_value"]')?.value || 200000);
+
+      const downVal = Number(form.querySelector('[name="down_payment"]')?.value || 0);
+      const programKey = d?.afford?.program || form.querySelector('input[name="program"]')?.value || 'conv';
+      const programList = parseAffordPrograms(copy);
+      const activeProgram = programList.find(p => p.key === programKey) || programList[0] || null;
+      const programLabel = activeProgram?.label || 'Conventional';
+      if (activeProgram){
+        form.dataset.programLabel = activeProgram.label;
+      }
+
+
+      const resultsCard = createCard('', {cls:'afford-results-card'});
+      resultsCard.innerHTML = '';
+      if (programLabel){
+        const pill = document.createElement('div');
+        pill.className = 'afford-pill';
+        pill.textContent = `${programLabel} Program`;
+        resultsCard.appendChild(pill);
+      }
+
+      const kpiMain = document.createElement('div');
+      kpiMain.className = 'afford-kpi-main';
+      kpiMain.innerHTML = `
+        <div class="afford-kpi">
+          <span class="label">Monthly Mortgage Payment</span>
+          <span class="value">${money(totalM)}</span>
+          <span class="sub">Per Month</span>
+        </div>
+        <div class="afford-kpi">
+          <span class="label">Loan Amount</span>
+          <span class="value">${money(loanVal ?? 0)}</span>
+          <span class="sub">At Closing</span>
+        </div>`;
+      resultsCard.appendChild(kpiMain);
+
+      const kpiSupp = document.createElement('div');
+      kpiSupp.className = 'afford-kpi-supp';
+      kpiSupp.innerHTML = `
+        <div class="afford-tile">
+          <span class="small">Your Debt to Income Ratio</span>
+          <strong>${d?.afford?.dti_you || '--'}</strong>
+        </div>
+        <div class="afford-tile">
+          <span class="small">Allowable Debt to Income Ratio</span>
+          <strong>${d?.afford?.dti_allowed || '--'}</strong>
+        </div>`;
+      resultsCard.appendChild(kpiSupp);
+
+      setRow('r1', [
+        buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut),
+        resultsCard
+      ]);
+
+      setRow('r2', [
+        buildListCard('Loan Details', d?.monthlyBreak || []),
+        buildRangeControls(homeVal, downVal, {homeField:'home_price', downField:'down_payment'})
+      ]);
+
+      const dpPct = homeVal > 0 ? (downVal/homeVal) * 100 : 0;
+      const summaryText =
+        `Based on what you input today your <strong>Total Payment</strong> would be <strong>${money(totalM)}</strong>`+
+        ` on a <strong>${programLabel} Loan</strong> with a <strong>${dpPct.toFixed(1)}% Down Payment</strong>. `+
+        `Your <strong>Debt-to-Income Ratio</strong> is <strong>${d?.afford?.dti_you || '--'}</strong> `+
+        `and the maximum allowable on this program type is <strong>${d?.afford?.dti_allowed || '50%/50%'}</strong>. `+
+        `Please confirm all numbers for accuracy with your loan officer.`;
+
+      setRow('r3', [buildSummaryCard(summaryText)]);
+      return;
+    }
+
+    if (type === 'purchase' || type === 'va_purchase'){
+      const totalMonthly = sum(d?.donut?.monthly || []);
+      const homeVal = byLabel(d?.monthlyBreak, 'home value') ?? Number(form.querySelector('[name="home_value"]')?.value || 200000);
+      const downVal = Number(form.querySelector('[name="down_payment"]')?.value || 0);
+
+      const kpis = buildKpiStack([
+        {label:'Monthly Mortgage Payment', value: totalMonthly, cls:'kpi-lg kpi-navy'},
+        {label:'Total Loan Amount', value: loanVal || d?.kpis?.[1]?.value || 0, cls:'kpi-lg kpi-navy'},
+        {label:'Total Interest Paid', value: d?.kpis?.[2]?.value || 0},
+        {label:'Down Payment', value: downVal}
+      ]);
+
+      const donutCard = buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut);
+      setRow('r1', [donutCard, kpis]);
+
+      setRow('r2', [
+        buildListCard('Loan Details', d?.monthlyBreak || []),
+        buildRangeControls(homeVal, downVal, {homeField:'home_value', downField:'down_payment', baseField:'base_amount'})
+      ]);
+
+      const infoCards = [];
+      if (copy.early_title || copy.early_info){
+        infoCards.push(createCard(copy.early_title || 'Early Payoff Strategy', {info: copy.early_info || '', cls:'info-card'}));
+      }
+      if (copy.lump_title || copy.lump_info){
+        infoCards.push(createCard(copy.lump_title || 'Lump Sum Payment', {info: copy.lump_info || '', cls:'info-card'}));
+      }
+      if (type === 'va_purchase' && d?.fee){
+        infoCards.push(buildListCard('Funding Fee', [
+          {label:'Funding Fee Percentage', raw: pctText((d.fee.pct || 0) * 100)},
+          {label:'Financed Amount', v: d.fee.amount || 0},
+          {label:'First Use', raw: d.fee.first ? 'Yes' : 'No'},
+        ]));
+      }
+      if (infoCards.length) setRow('r3', infoCards);
+
+      const dpPct = homeVal > 0 ? (downVal/homeVal) * 100 : 0;
+      const summaryText = `Your estimated total monthly payment is <strong>${money(totalMonthly)}</strong> with a loan amount of <strong>${money(loanVal || 0)}</strong> and a down payment of <strong>${money(downVal)} (${dpPct.toFixed(1)}%)</strong>. Review property taxes, insurance and HOA dues for accuracy with your loan officer.`;
+      setRow('r4', [buildSummaryCard(summaryText)]);
+      return;
+    }
+
+
+      const kpis = buildKpiStack([
+        {label:'Monthly Mortgage Payment', value: totalMonthly, cls:'kpi-lg kpi-navy'},
+        {label:'Total Loan Amount', value: loanVal || d?.kpis?.[1]?.value || 0, cls:'kpi-lg kpi-navy'},
+        {label:'Total Interest Paid', value: d?.kpis?.[2]?.value || 0},
+        {label:'Down Payment', value: downVal}
+      ]);
+
+      const donutCard = buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut);
+      setRow('r1', [donutCard, kpis]);
+
+      setRow('r2', [
+        buildListCard('Loan Details', d?.monthlyBreak || []),
+        buildRangeControls(homeVal, downVal, {homeField:'home_value', downField:'down_payment', baseField:'base_amount'})
+      ]);
+
+      const infoCards = [];
+      if (copy.early_title || copy.early_info){
+        infoCards.push(createCard(copy.early_title || 'Early Payoff Strategy', {info: copy.early_info || '', cls:'info-card'}));
+      }
+      if (copy.lump_title || copy.lump_info){
+        infoCards.push(createCard(copy.lump_title || 'Lump Sum Payment', {info: copy.lump_info || '', cls:'info-card'}));
+      }
+      if (type === 'va_purchase' && d?.fee){
+        infoCards.push(buildListCard('Funding Fee', [
+          {label:'Funding Fee Percentage', raw: pctText((d.fee.pct || 0) * 100)},
+          {label:'Financed Amount', v: d.fee.amount || 0},
+          {label:'First Use', raw: d.fee.first ? 'Yes' : 'No'},
+        ]));
+      }
+      if (infoCards.length) setRow('r3', infoCards);
+
+      const dpPct = homeVal > 0 ? (downVal/homeVal) * 100 : 0;
+      const summaryText = `Your estimated total monthly payment is <strong>${money(totalMonthly)}</strong> with a loan amount of <strong>${money(loanVal || 0)}</strong> and a down payment of <strong>${money(downVal)} (${dpPct.toFixed(1)}%)</strong>. Review property taxes, insurance and HOA dues for accuracy with your loan officer.`;
+      setRow('r4', [buildSummaryCard(summaryText)]);
+      return;
+    }
+
+
 
     if (type === 'refinance' || type === 'va_refinance'){
       const compare = d?.compare || {};
