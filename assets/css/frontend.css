@@ -74,9 +74,12 @@
 .creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .creo-card-h h3{margin:0;font-size:15px}
 .creo-card-copy{margin:0 0 12px;font-size:13px;line-height:1.5;color:#475569}
+
 .creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
 .creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
 .creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+=======
+
 .creo-card.summary-card .creo-summary{font-size:13px;line-height:1.6;color:#475569}
 .creo-card.summary-card .creo-summary strong{color:#0f172a}
 .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
