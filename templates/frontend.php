@@ -49,9 +49,13 @@ foreach ($tabs as $id => $t) {
 
           <div class="creo-disclaimer"></div>
 
+
+          <div class="creo-disclaimer"></div>
+
           <div class="creo-disclaimer">
             Results received from this calculator are for comparison only. Accuracy is not guaranteed. Confirm numbers with your loan officer.
           </div>
+
 
         </section>
       </div>

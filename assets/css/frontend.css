@@ -38,7 +38,6 @@
 .creo-left .creo-inputs.afford-mode .field-label{display:flex;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#94a3c4;font-weight:700}
 .creo-left .creo-inputs.afford-mode .field-label span:first-child{color:#f8fafc}
 .creo-left .creo-inputs.afford-mode .field-control{display:flex;align-items:center;justify-content:space-between;gap:16px}
-
 .creo-left .creo-inputs.afford-mode .field-shell{flex:1;display:flex;align-items:center;gap:12px;background:#0d121f;border:1px solid #1f2738;border-radius:14px;padding:14px 18px;min-height:60px;position:relative}
 .creo-left .creo-inputs.afford-mode .field-shell.has-toggle{padding-right:12px}
 .creo-left .creo-inputs.afford-mode .field-shell.has-select{justify-content:flex-end}
@@ -48,7 +47,6 @@
 .creo-left .creo-inputs.afford-mode .field-prefix.empty,
 .creo-left .creo-inputs.afford-mode .field-suffix.empty{display:none}
 .creo-left .creo-inputs.afford-mode input{background:transparent;border:none;color:#f8fafc;width:100%;padding:0;font-size:22px;font-weight:800;line-height:1;text-align:right}
-
 .creo-left .creo-inputs.afford-mode .field-shell{flex:1;display:flex;align-items:center;gap:10px;background:#0d121f;border:1px solid #1f2738;border-radius:14px;padding:14px 16px;min-height:60px}
 .creo-left .creo-inputs.afford-mode .field-prefix,
 .creo-left .creo-inputs.afford-mode .field-suffix{font-size:14px;color:#9da8c7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
@@ -69,19 +67,19 @@
 .creo-left .creo-inputs.afford-mode input{background:transparent;border:none;color:#f8fafc;width:100%;padding:0;font-size:16px;font-weight:700}
 
 
+
 .creo-left .creo-inputs.afford-mode input:focus{outline:none}
 .creo-left .creo-inputs.afford-mode input[type=number]::-webkit-outer-spin-button,
 .creo-left .creo-inputs.afford-mode input[type=number]::-webkit-inner-spin-button{appearance:none;margin:0}
 .creo-left .creo-inputs.afford-mode input[type=number]{appearance:textfield}
-
 .creo-left .creo-inputs.afford-mode select{width:100%;background:transparent;border:none;color:#f8fafc;font-size:18px;font-weight:700;text-align-last:right;padding-right:24px;appearance:none}
 .creo-left .creo-inputs.afford-mode select:focus{outline:none}
 .creo-left .creo-inputs.afford-mode .field-shell.has-select select{padding-right:28px}
 .creo-left .creo-inputs.afford-mode .creo-field.span-2{grid-column:1/-1}
 .creo-left .creo-inputs.afford-mode .creo-field.is-readonly .field-shell{opacity:.65}
 .creo-left .creo-inputs.afford-mode .creo-field.is-readonly input{pointer-events:none}
-
 .creo-left .creo-inputs.afford-mode .creo-field.span-2{grid-column:1/-1}
+
 
 
 .creo-left .creo-inputs.afford-mode .field-stepper{display:flex;flex-direction:column;gap:8px}
@@ -102,12 +100,12 @@
 .creo-subbtn.is-active{background:#facc15;color:#0f172a;border-color:#facc15;box-shadow:0 8px 18px rgba(250,204,21,.35)}
 .creo-subbtn:hover{border-color:#facc15;color:#facc15}
 
-
 .creo-left .creo-inputs.afford-mode .field-btn svg{width:18px;height:18px}
 .creo-subnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .creo-subbtn{border:1px solid #1f2937;background:#111827;color:#e5e7eb;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .18s ease}
 .creo-subbtn.is-active{background:#fbbf24;color:#111827;border-color:#fbbf24}
 .creo-subbtn:hover{border-color:#fbbf24;color:#fbbf24}
+
 
 
 @media (max-width:1024px){.creo-left .creo-inputs.afford-mode .afford-grid{grid-template-columns:1fr}}
@@ -150,6 +148,11 @@
 .creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
 
 
+.creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
+.creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
 
 .creo-card.summary-card .creo-summary{font-size:13px;line-height:1.6;color:#475569}
 .creo-card.summary-card .creo-summary strong{color:#0f172a}
@@ -169,7 +172,6 @@
 .afford-tile{background:#0f172a;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px;border:1px solid #1e293b;color:#e2e8f0;box-shadow:0 12px 24px rgba(15,23,42,.3)}
 .afford-tile .small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}
 .afford-tile strong{font-size:18px;color:#f8fafc}
-
 
 .afford-results-card{display:flex;flex-direction:column;gap:18px}
 .afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;box-shadow:0 10px 18px rgba(11,30,58,.35)}
