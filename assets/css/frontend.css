@@ -30,6 +30,7 @@
 .creo-left .creo-inputs select{
   width:100%;background:#1a1e25;border:1px solid #2a2f3a;color:#e5e7eb;border-radius:10px;padding:12px 14px
 }
+
 .creo-left .creo-inputs.afford-mode{display:flex;flex-direction:column;gap:24px}
 .creo-left .creo-inputs.afford-mode .afford-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
 .creo-left .creo-inputs.afford-mode .creo-field{display:flex;flex-direction:column;gap:12px;background:#101523;border:1px solid #1e2535;border-radius:18px;padding:16px 18px;box-shadow:0 18px 34px rgba(3,9,20,.45);transition:border-color .2s ease,box-shadow .2s ease}
@@ -46,6 +47,27 @@
 .creo-left .creo-inputs.afford-mode .field-prefix.empty,
 .creo-left .creo-inputs.afford-mode .field-suffix.empty{display:none}
 .creo-left .creo-inputs.afford-mode input{background:transparent;border:none;color:#f8fafc;width:100%;padding:0;font-size:22px;font-weight:800;line-height:1;text-align:right}
+.creo-left .creo-inputs.afford-mode .field-shell{flex:1;display:flex;align-items:center;gap:10px;background:#0d121f;border:1px solid #1f2738;border-radius:14px;padding:14px 16px;min-height:60px}
+.creo-left .creo-inputs.afford-mode .field-prefix,
+.creo-left .creo-inputs.afford-mode .field-suffix{font-size:14px;color:#9da8c7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.creo-left .creo-inputs.afford-mode input{background:transparent;border:none;color:#f8fafc;width:100%;padding:0;font-size:24px;font-weight:800;line-height:1;text-align:right}
+
+.creo-left .creo-inputs.afford-mode{display:flex;flex-direction:column;gap:20px}
+.creo-left .creo-inputs.afford-mode .afford-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.creo-left .creo-inputs.afford-mode .creo-field{display:flex;flex-direction:column;gap:10px}
+.creo-left .creo-inputs.afford-mode .field-label{display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;font-weight:600}
+.creo-left .creo-inputs.afford-mode .field-label span:first-child{color:#e2e8f0}
+.creo-left .creo-inputs.afford-mode .field-control{display:flex;align-items:center;gap:8px}
+.creo-left .creo-inputs.afford-mode .field-btn{width:38px;height:38px;border-radius:12px;border:1px solid #2a2f3a;background:#1b2029;color:#f8fafc;font-size:20px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s ease}
+.creo-left .creo-inputs.afford-mode .field-btn:hover{background:#2563eb;border-color:#2563eb;color:#fff}
+.creo-left .creo-inputs.afford-mode .field-btn:focus{outline:2px solid #2563eb;outline-offset:2px}
+.creo-left .creo-inputs.afford-mode .field-shell{flex:1;display:flex;align-items:center;gap:8px;background:#1a1f28;border:1px solid #2a2f3a;border-radius:14px;padding:10px 14px}
+.creo-left .creo-inputs.afford-mode .field-prefix,
+.creo-left .creo-inputs.afford-mode .field-suffix{font-size:13px;color:#9ca3af;font-weight:600}
+.creo-left .creo-inputs.afford-mode input{background:transparent;border:none;color:#f8fafc;width:100%;padding:0;font-size:16px;font-weight:700}
+
+
+
 .creo-left .creo-inputs.afford-mode input:focus{outline:none}
 .creo-left .creo-inputs.afford-mode input[type=number]::-webkit-outer-spin-button,
 .creo-left .creo-inputs.afford-mode input[type=number]::-webkit-inner-spin-button{appearance:none;margin:0}
@@ -56,21 +78,36 @@
 .creo-left .creo-inputs.afford-mode .creo-field.span-2{grid-column:1/-1}
 .creo-left .creo-inputs.afford-mode .creo-field.is-readonly .field-shell{opacity:.65}
 .creo-left .creo-inputs.afford-mode .creo-field.is-readonly input{pointer-events:none}
+.creo-left .creo-inputs.afford-mode .creo-field.span-2{grid-column:1/-1}
+
+
+
 .creo-left .creo-inputs.afford-mode .field-stepper{display:flex;flex-direction:column;gap:8px}
 .creo-left .creo-inputs.afford-mode .field-btn{width:38px;height:38px;border-radius:12px;border:1px solid #273248;background:#161f30;color:#f8fafc;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s ease}
 .creo-left .creo-inputs.afford-mode .field-btn:hover{background:#2563eb;border-color:#2563eb;color:#fff}
 .creo-left .creo-inputs.afford-mode .field-btn:focus{outline:2px solid #2563eb;outline-offset:2px}
 .creo-left .creo-inputs.afford-mode .field-btn svg{width:18px;height:18px;pointer-events:none}
+
 .creo-left .creo-inputs.afford-mode .field-toggle{margin-left:auto;display:inline-flex;align-items:center;gap:0;background:#131b2a;border:1px solid #243149;border-radius:999px;padding:2px}
 .creo-left .creo-inputs.afford-mode .field-toggle button{border:none;background:transparent;color:#90a4d4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:6px 10px;border-radius:999px;cursor:pointer;transition:all .18s ease}
 .creo-left .creo-inputs.afford-mode .field-toggle button.is-active{background:#facc15;color:#0f172a}
 .creo-left .creo-inputs.afford-mode .field-toggle button:focus{outline:none;box-shadow:0 0 0 2px rgba(250,204,21,.35)}
+
 .creo-left .creo-inputs.afford-mode .field-btn.minus{margin-top:-2px}
 .creo-left .creo-inputs.afford-mode .field-btn.plus{margin-bottom:-2px}
 .creo-subnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;padding:6px;background:#0d121f;border:1px solid #1c2333;border-radius:14px}
 .creo-subbtn{border:1px solid #243149;background:#131c2c;color:#d1d5f9;border-radius:12px;padding:12px 14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;transition:all .18s ease;display:flex;align-items:center;justify-content:center}
 .creo-subbtn.is-active{background:#facc15;color:#0f172a;border-color:#facc15;box-shadow:0 8px 18px rgba(250,204,21,.35)}
 .creo-subbtn:hover{border-color:#facc15;color:#facc15}
+
+.creo-left .creo-inputs.afford-mode .field-btn svg{width:18px;height:18px}
+.creo-subnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.creo-subbtn{border:1px solid #1f2937;background:#111827;color:#e5e7eb;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .18s ease}
+.creo-subbtn.is-active{background:#fbbf24;color:#111827;border-color:#fbbf24}
+.creo-subbtn:hover{border-color:#fbbf24;color:#fbbf24}
+
+
+
 @media (max-width:1024px){.creo-left .creo-inputs.afford-mode .afford-grid{grid-template-columns:1fr}}
 .creo-left .creo-panel-h,
 .creo-left .creo-cta,
@@ -95,14 +132,34 @@
 .creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .creo-card-h h3{margin:0;font-size:15px}
 .creo-card-copy{margin:0 0 12px;font-size:13px;line-height:1.5;color:#475569}
+
 .creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
 .creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
 .creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
+.creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
+.creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
+.creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
+.creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
+.creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
+.creo-card.controls-card .creo-card-h h3{color:#1d4ed8;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.creo-card.controls-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
+
 .creo-card.summary-card .creo-summary{font-size:13px;line-height:1.6;color:#475569}
 .creo-card.summary-card .creo-summary strong{color:#0f172a}
 .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
 
 /* affordability KPI layout */
+
 .creo-card.afford-results-card{background:transparent;border:none;padding:0}
 .afford-results-card{display:flex;flex-direction:column;gap:18px}
 .afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;box-shadow:0 10px 18px rgba(11,30,58,.35)}
@@ -115,6 +172,32 @@
 .afford-tile{background:#0f172a;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px;border:1px solid #1e293b;color:#e2e8f0;box-shadow:0 12px 24px rgba(15,23,42,.3)}
 .afford-tile .small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}
 .afford-tile strong{font-size:18px;color:#f8fafc}
+
+.afford-results-card{display:flex;flex-direction:column;gap:18px}
+.afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;box-shadow:0 10px 18px rgba(11,30,58,.35)}
+.afford-kpi-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.afford-kpi{background:#f8fbff;border:1px solid #dbeafe;border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:8px;box-shadow:0 14px 28px rgba(15,23,42,.12)}
+.afford-kpi .label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8}
+.afford-kpi .value{font-size:28px;font-weight:800;color:#0f172a}
+.afford-kpi .sub{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+.afford-kpi-supp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.afford-tile{background:#0f172a;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:6px;border:1px solid #1e293b;color:#e2e8f0;box-shadow:0 12px 24px rgba(15,23,42,.3)}
+.afford-tile .small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}
+.afford-tile strong{font-size:20px;color:#f8fafc}
+
+.afford-results-card{display:flex;flex-direction:column;gap:16px}
+.afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.afford-kpi-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.afford-kpi{background:#2563eb;color:#fff;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px}
+.afford-kpi .label{font-size:13px;font-weight:600;opacity:.9;letter-spacing:.04em;text-transform:uppercase}
+.afford-kpi .value{font-size:26px;font-weight:800}
+.afford-kpi .sub{font-size:12px;font-weight:600;opacity:.75;text-transform:uppercase;letter-spacing:.05em}
+.afford-kpi-supp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.afford-tile{background:#f1f5f9;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.afford-tile .small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#475569}
+.afford-tile strong{font-size:17px;color:#0f172a}
+
+
 @media (max-width:720px){.afford-kpi-main,.afford-kpi-supp{grid-template-columns:1fr}}
 
 /* KPI tiles */
