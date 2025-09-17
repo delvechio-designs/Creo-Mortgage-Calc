@@ -58,9 +58,6 @@
 .creo-left .creo-inputs.afford-mode .field-label{display:flex;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;font-weight:600}
 .creo-left .creo-inputs.afford-mode .field-label span:first-child{color:#e2e8f0}
 .creo-left .creo-inputs.afford-mode .field-control{display:flex;align-items:center;gap:8px}
-.creo-left .creo-inputs.afford-mode .field-btn{width:38px;height:38px;border-radius:12px;border:1px solid #2a2f3a;background:#1b2029;color:#f8fafc;font-size:20px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s ease}
-.creo-left .creo-inputs.afford-mode .field-btn:hover{background:#2563eb;border-color:#2563eb;color:#fff}
-.creo-left .creo-inputs.afford-mode .field-btn:focus{outline:2px solid #2563eb;outline-offset:2px}
 .creo-left .creo-inputs.afford-mode .field-shell{flex:1;display:flex;align-items:center;gap:8px;background:#1a1f28;border:1px solid #2a2f3a;border-radius:14px;padding:10px 14px}
 .creo-left .creo-inputs.afford-mode .field-prefix,
 .creo-left .creo-inputs.afford-mode .field-suffix{font-size:13px;color:#9ca3af;font-weight:600}
@@ -82,25 +79,16 @@
 
 
 
-.creo-left .creo-inputs.afford-mode .field-stepper{display:flex;flex-direction:column;gap:8px}
-.creo-left .creo-inputs.afford-mode .field-btn{width:38px;height:38px;border-radius:12px;border:1px solid #273248;background:#161f30;color:#f8fafc;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s ease}
-.creo-left .creo-inputs.afford-mode .field-btn:hover{background:#2563eb;border-color:#2563eb;color:#fff}
-.creo-left .creo-inputs.afford-mode .field-btn:focus{outline:2px solid #2563eb;outline-offset:2px}
-.creo-left .creo-inputs.afford-mode .field-btn svg{width:18px;height:18px;pointer-events:none}
-
 .creo-left .creo-inputs.afford-mode .field-toggle{margin-left:auto;display:inline-flex;align-items:center;gap:0;background:#131b2a;border:1px solid #243149;border-radius:999px;padding:2px}
 .creo-left .creo-inputs.afford-mode .field-toggle button{border:none;background:transparent;color:#90a4d4;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:6px 10px;border-radius:999px;cursor:pointer;transition:all .18s ease}
 .creo-left .creo-inputs.afford-mode .field-toggle button.is-active{background:#facc15;color:#0f172a}
 .creo-left .creo-inputs.afford-mode .field-toggle button:focus{outline:none;box-shadow:0 0 0 2px rgba(250,204,21,.35)}
 
-.creo-left .creo-inputs.afford-mode .field-btn.minus{margin-top:-2px}
-.creo-left .creo-inputs.afford-mode .field-btn.plus{margin-bottom:-2px}
 .creo-subnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;padding:6px;background:#0d121f;border:1px solid #1c2333;border-radius:14px}
 .creo-subbtn{border:1px solid #243149;background:#131c2c;color:#d1d5f9;border-radius:12px;padding:12px 14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;cursor:pointer;transition:all .18s ease;display:flex;align-items:center;justify-content:center}
 .creo-subbtn.is-active{background:#facc15;color:#0f172a;border-color:#facc15;box-shadow:0 8px 18px rgba(250,204,21,.35)}
 .creo-subbtn:hover{border-color:#facc15;color:#facc15}
 
-.creo-left .creo-inputs.afford-mode .field-btn svg{width:18px;height:18px}
 .creo-subnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .creo-subbtn{border:1px solid #1f2937;background:#111827;color:#e5e7eb;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .18s ease}
 .creo-subbtn.is-active{background:#fbbf24;color:#111827;border-color:#fbbf24}

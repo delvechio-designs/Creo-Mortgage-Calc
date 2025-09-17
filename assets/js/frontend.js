@@ -2,11 +2,6 @@
 (function(){
   const config = (typeof window !== 'undefined' && window.CREO_MC) ? window.CREO_MC : {};
   const state = { active:null, tabs: config.tabs || {} };
-  const ICONS = {
-    plus: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    minus: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-  };
-
   // helpers
   function money(v){
     try { return (isFinite(v)?v:0).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
@@ -339,7 +334,6 @@
       let input = null;
       let prefix = null;
       let suffix = null;
-      let stepValue = Number(def.step ?? 1);
       let decimalsUsed = Number.isFinite(def.decimals) ? def.decimals : inferDecimals(def.step || 0);
 
       if (isSelect){
@@ -427,8 +421,8 @@
           const cfg = modes[modeKey] || {};
           const prevMode = currentMode;
           currentMode = modeKey;
-          stepValue = Number(cfg.step ?? def.step ?? 1);
-          input.step = String(stepValue);
+          const stepSetting = Number(cfg.step ?? def.step ?? 1);
+          input.step = String(stepSetting);
           const dec = cfg.decimals;
           const fallbackDec = Number.isFinite(def.decimals) ? def.decimals : inferDecimals(cfg.step ?? def.step ?? 0);
           decimalsUsed = Number.isFinite(dec) ? dec : fallbackDec;
@@ -475,41 +469,6 @@
           input.dataset.mode = '';
         }
 
-        let plusBtn = null;
-        let minusBtn = null;
-        if (def.stepper !== false && !def.readonly){
-          const stepper = document.createElement('div');
-          stepper.className = 'field-stepper';
-          plusBtn = document.createElement('button');
-          plusBtn.type = 'button';
-          plusBtn.className = 'field-btn plus';
-          plusBtn.innerHTML = ICONS.plus;
-          plusBtn.setAttribute('aria-label', `Increase ${def.label}`);
-          stepper.appendChild(plusBtn);
-
-          minusBtn = document.createElement('button');
-          minusBtn.type = 'button';
-          minusBtn.className = 'field-btn minus';
-          minusBtn.innerHTML = ICONS.minus;
-          minusBtn.setAttribute('aria-label', `Decrease ${def.label}`);
-          stepper.appendChild(minusBtn);
-
-          control.appendChild(stepper);
-        }
-
-        function adjust(delta){
-          const current = parseFloat(input.value || 0);
-          const safe = Number.isFinite(current) ? current : 0;
-          let next = safe + (stepValue * delta);
-          if (def.min !== undefined) next = Math.max(def.min, next);
-          if (def.max !== undefined) next = Math.min(def.max, next);
-          input.value = formatValue(next, decimalsUsed);
-          input.dispatchEvent(new Event('input',{bubbles:true}));
-        }
-
-        if (plusBtn) plusBtn.addEventListener('click', () => adjust(1));
-        if (minusBtn) minusBtn.addEventListener('click', () => adjust(-1));
-
         input.addEventListener('focus', () => wrap.classList.add('is-focused'));
         input.addEventListener('blur', () => wrap.classList.remove('is-focused'));
       }
@@ -527,7 +486,7 @@
       {name:'monthly_debts', label:'Monthly Debts', prefix:'$', note:'Per Month', step:50, min:0, decimals:0, default:getValue('monthly_debts', 1500)},
       {name:'home_price', label:'Home Price', prefix:'$', note:'Purchase Price', step:1000, min:0, decimals:0, default:getValue('home_price', 200000)},
       {name:'down_payment', label:'Down Payment', prefix:'$', step:1000, min:0, decimals:0, default:getValue('down_payment', 0), modes:{amount:{label:'$', prefix:'$'}, percent:{label:'%', suffix:'%', decimals:2, step:0.25}}, defaultMode:'amount'},
-      {name:'loan_amount', label:'Loan Amount', note:'Calculated', prefix:'$', step:1000, min:0, decimals:0, default:initialLoan, stepper:false, readonly:true},
+      {name:'loan_amount', label:'Loan Amount', note:'Calculated', prefix:'$', step:1000, min:0, decimals:0, default:initialLoan, readonly:true},
       {name:'loan_terms', label:'Loan Term', step:1, min:1, decimals:0, default:getValue('loan_terms', 30), modes:{years:{label:'Year', suffix:'Years', decimals:0, step:1}, months:{label:'Month', suffix:'Months', decimals:0, step:1}}, defaultMode:'years'},
       {name:'interest_rate', label:'Interest Rate', suffix:'%', step:0.125, min:0, decimals:3, default:getValue('interest_rate', 6.5)},
       {name:'credit_score', label:'Credit Score', type:'select', options:creditChoices.map(value => ({value, label:value})), default:creditDefault},
