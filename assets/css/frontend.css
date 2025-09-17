@@ -154,8 +154,29 @@
 
 
 
-.creo-card.summary-card .creo-summary{font-size:13px;line-height:1.6;color:#475569}
-.creo-card.summary-card .creo-summary strong{color:#0f172a}
+.creo-card.summary-card{
+  background:#1d4ed8;
+  border-color:#1e3a8a;
+  color:#e0f2fe;
+  width:100%;
+  max-width:420px;
+  align-self:start;
+  justify-self:start;
+  box-shadow:0 20px 38px rgba(15,23,42,.2);
+}
+.creo-card.summary-card .creo-card-h h3{
+  color:#bfdbfe;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.creo-card.summary-card .creo-summary{
+  font-size:14px;
+  line-height:1.75;
+  color:inherit;
+}
+.creo-card.summary-card .creo-summary strong{color:#fff}
 .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
 
 /* affordability KPI layout */
