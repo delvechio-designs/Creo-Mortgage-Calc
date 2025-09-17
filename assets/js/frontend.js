@@ -976,6 +976,9 @@
         resultsCard.appendChild(pill);
       }
 
+      const kpiWrap = document.createElement('div');
+      kpiWrap.className = 'afford-kpi-wrap';
+
       const kpiMain = document.createElement('div');
       kpiMain.className = 'afford-kpi-main';
       kpiMain.innerHTML = `
@@ -989,7 +992,7 @@
           <span class="value">${money(loanVal)}</span>
           <span class="sub">At Closing</span>
         </div>`;
-      resultsCard.appendChild(kpiMain);
+      kpiWrap.appendChild(kpiMain);
 
       const kpiSupp = document.createElement('div');
       kpiSupp.className = 'afford-kpi-supp';
@@ -1002,7 +1005,8 @@
           <span class="small">Allowable Debt to Income Ratio</span>
           <strong>${d?.afford?.dti_allowed || '--'}</strong>
         </div>`;
-      resultsCard.appendChild(kpiSupp);
+      kpiWrap.appendChild(kpiSupp);
+      resultsCard.appendChild(kpiWrap);
 
       setRow('r1', [
         buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut),

@@ -122,7 +122,7 @@
 .creo-right{display:flex;flex-direction:column;gap:20px}
 .creo-row{display:grid;gap:20px}
 .creo-row.is-empty{display:none}
-.row-one{grid-template-columns:1.5fr 1fr}
+.row-one{grid-template-columns:repeat(2,minmax(0,1fr))}
 .row-two{grid-template-columns:1fr 1fr}
 @media (max-width:1100px){.row-one,.row-two{grid-template-columns:1fr}}
 
@@ -185,17 +185,18 @@
 .afford-tile .small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}
 .afford-tile strong{font-size:20px;color:#f8fafc}
 
-.afford-results-card{display:flex;flex-direction:column;gap:16px}
-.afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.afford-kpi-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.afford-kpi{background:#2563eb;color:#fff;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px}
-.afford-kpi .label{font-size:13px;font-weight:600;opacity:.9;letter-spacing:.04em;text-transform:uppercase}
-.afford-kpi .value{font-size:26px;font-weight:800}
-.afford-kpi .sub{font-size:12px;font-weight:600;opacity:.75;text-transform:uppercase;letter-spacing:.05em}
-.afford-kpi-supp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.afford-tile{background:#f1f5f9;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
-.afford-tile .small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#475569}
-.afford-tile strong{font-size:17px;color:#0f172a}
+.afford-results-card{display:flex;flex-direction:column;gap:20px}
+.afford-results-card .afford-pill{align-self:flex-start;background:#0b1e3a;color:#fff;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.afford-kpi-wrap{display:flex;flex-direction:column;gap:18px}
+.afford-kpi-main,
+.afford-kpi-supp{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:stretch}
+.afford-kpi{background:#2563eb;color:#fff;border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:10px;justify-content:space-between;box-shadow:0 20px 35px rgba(37,99,235,.22)}
+.afford-kpi .label{font-size:13px;font-weight:600;opacity:.9;letter-spacing:.04em;text-transform:uppercase;line-height:1.35;overflow-wrap:anywhere}
+.afford-kpi .value{font-size:26px;font-weight:800;line-height:1.25}
+.afford-kpi .sub{font-size:12px;font-weight:600;opacity:.75;text-transform:uppercase;letter-spacing:.05em;line-height:1.3;overflow-wrap:anywhere}
+.afford-tile{background:#f1f5f9;border:1px solid #dbeafe;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 24px rgba(15,23,42,.12)}
+.afford-tile .small{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#475569;line-height:1.35;overflow-wrap:anywhere}
+.afford-tile strong{font-size:18px;color:#0f172a;line-height:1.3;word-break:break-word}
 
 
 @media (max-width:720px){.afford-kpi-main,.afford-kpi-supp{grid-template-columns:1fr}}
