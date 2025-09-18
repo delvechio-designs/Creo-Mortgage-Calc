@@ -916,7 +916,6 @@
     }
 
     function buildRangeControls(homeVal, downVal, opts){
-      const card = createCard(opts?.title || 'Adjust Your Numbers', {cls:'controls-card'});
       const homeMin = 50000;
       const homeMax = 2000000;
       const downFactor = opts?.downMaxFactor ?? 0.5;
@@ -924,61 +923,71 @@
       const downLimit = value => Math.max(0, Math.round(downFactor * value));
       let currentDown = Math.min(Math.max(downVal || 0, 0), downLimit(currentHome));
 
-      const priceField = document.createElement('div');
-      priceField.className = 'range-field';
-      const priceHead = document.createElement('div');
-      priceHead.className = 'range-h';
-      priceHead.innerHTML = '<span>Purchase Price</span>';
-      const priceValue = document.createElement('span');
-      priceValue.className = 'range-value';
-      priceValue.textContent = money(currentHome);
-      priceHead.appendChild(priceValue);
-      const priceWrap = document.createElement('div');
-      priceWrap.className = 'range';
-      const priceInput = document.createElement('input');
-      priceInput.type = 'range';
-      priceInput.min = String(homeMin);
-      priceInput.max = String(homeMax);
-      priceInput.step = '1000';
-      priceInput.name = '_price';
-      priceInput.value = currentHome;
-      priceWrap.appendChild(priceInput);
-      const priceMeta = document.createElement('div');
-      priceMeta.className = 'range-meta';
-      priceMeta.innerHTML = `<span>${money(homeMin)}</span><span>${money(homeMax)}</span>`;
-      priceField.append(priceHead, priceWrap, priceMeta);
+      function makeRangeField(config){
+        const field = document.createElement('div');
+        field.className = 'range-field';
+        if (!config.showLabel) field.classList.add('no-label');
+        const head = document.createElement('div');
+        head.className = 'range-h';
+        if (config.showLabel){
+          const label = document.createElement('span');
+          label.textContent = config.label;
+          head.appendChild(label);
+        }
+        const valueEl = document.createElement('span');
+        valueEl.className = 'range-value';
+        valueEl.textContent = money(config.value);
+        head.appendChild(valueEl);
+        const rangeWrap = document.createElement('div');
+        rangeWrap.className = 'range';
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = String(config.min);
+        input.max = String(config.max);
+        input.step = String(config.step ?? 1);
+        if (config.name) input.name = config.name;
+        if (config.label) input.setAttribute('aria-label', config.label);
+        input.value = String(config.value ?? config.min);
+        rangeWrap.appendChild(input);
+        const meta = document.createElement('div');
+        meta.className = 'range-meta';
+        const minEl = document.createElement('span');
+        minEl.textContent = money(config.min);
+        const maxEl = document.createElement('span');
+        maxEl.textContent = money(config.max);
+        meta.append(minEl, maxEl);
+        field.append(head, rangeWrap, meta);
+        return {field, input, valueEl, minEl, maxEl};
+      }
 
-      const downField = document.createElement('div');
-      downField.className = 'range-field';
-      const downHead = document.createElement('div');
-      downHead.className = 'range-h';
-      downHead.innerHTML = '<span>Down Payment</span>';
-      const downValueEl = document.createElement('span');
-      downValueEl.className = 'range-value';
-      downValueEl.textContent = money(currentDown);
-      downHead.appendChild(downValueEl);
-      const downWrap = document.createElement('div');
-      downWrap.className = 'range';
-      const downInput = document.createElement('input');
-      downInput.type = 'range';
-      downInput.min = '0';
-      downInput.step = '500';
-      downInput.name = '_down';
-      downInput.max = String(downLimit(currentHome));
-      downInput.value = currentDown;
-      downWrap.appendChild(downInput);
-      const downMeta = document.createElement('div');
-      downMeta.className = 'range-meta';
-      downMeta.innerHTML = `<span>${money(0)}</span><span>${money(Number(downInput.max))}</span>`;
-      const downMetaSpans = downMeta.querySelectorAll('span');
-      downField.append(downHead, downWrap, downMeta);
+      const split = Boolean(opts?.split);
+      const showLabels = opts?.showLabels ?? true;
+      const priceLabel = opts?.priceLabel || opts?.priceTitle || 'Purchase Price';
+      const downLabel = opts?.downLabel || opts?.downTitle || 'Down Payment';
 
-      card.appendChild(priceField);
-      card.appendChild(downField);
+      const priceField = makeRangeField({
+        label: priceLabel,
+        min: homeMin,
+        max: homeMax,
+        step: 1000,
+        value: currentHome,
+        name: '_price',
+        showLabel: showLabels,
+      });
+      const downField = makeRangeField({
+        label: downLabel,
+        min: 0,
+        max: downLimit(currentHome),
+        step: 500,
+        value: currentDown,
+        name: '_down',
+        showLabel: showLabels,
+      });
 
       const homeFieldEl = opts?.homeField ? form.querySelector(`[name="${opts.homeField}"]`) : null;
       const downFieldEl = opts?.downField ? form.querySelector(`[name="${opts.downField}"]`) : null;
       const loanFieldEl = form.querySelector('[name="loan_amount"]');
+      const baseFieldEl = opts?.baseField ? form.querySelector(`[name="${opts.baseField}"]`) : null;
 
       function updateHomeField(value){
         if (!homeFieldEl) return;
@@ -1000,9 +1009,15 @@
       }
 
       function updateLoanField(homeValue, downAmount){
-        if (!loanFieldEl) return;
-        const decimals = Number(loanFieldEl.dataset.decimals || 0);
-        loanFieldEl.value = formatValue(Math.max(0, homeValue - downAmount), decimals);
+        const amount = Math.max(0, homeValue - downAmount);
+        if (loanFieldEl){
+          const decimals = Number(loanFieldEl.dataset.decimals || 0);
+          loanFieldEl.value = formatValue(amount, decimals);
+        }
+        if (baseFieldEl){
+          const decimals = Number(baseFieldEl.dataset.decimals || 0);
+          baseFieldEl.value = formatValue(amount, decimals);
+        }
       }
 
       function readDownAmount(homeValue){
@@ -1016,22 +1031,26 @@
       updateDownField(currentDown, currentHome);
       updateLoanField(currentHome, currentDown);
 
+      const priceInput = priceField.input;
+      const downInput = downField.input;
+
       priceInput.oninput = debounce(e => {
         const value = Math.min(Math.max(parseFloat(e.target.value || 0) || homeMin, homeMin), homeMax);
         currentHome = value;
-        priceValue.textContent = money(value);
+        priceInput.value = String(value);
+        priceField.valueEl.textContent = money(value);
         updateHomeField(value);
         const newMax = downLimit(value);
         downInput.max = String(newMax);
-        if (downMetaSpans && downMetaSpans[1]) downMetaSpans[1].textContent = money(newMax);
+        if (downField.maxEl) downField.maxEl.textContent = money(newMax);
         let amount = readDownAmount(value);
         if (amount > newMax){
           amount = newMax;
           updateDownField(amount, value);
         }
         currentDown = amount;
-        downInput.value = amount;
-        downValueEl.textContent = money(amount);
+        downInput.value = String(amount);
+        downField.valueEl.textContent = money(amount);
         updateLoanField(value, amount);
         calculate(form, id);
       }, 80);
@@ -1041,12 +1060,22 @@
         const value = Math.min(Math.max(parseFloat(e.target.value || 0) || 0, 0), max);
         currentDown = value;
         const homeValue = currentHome;
-        downValueEl.textContent = money(value);
+        downInput.value = String(value);
+        downField.valueEl.textContent = money(value);
         updateDownField(value, homeValue);
         updateLoanField(homeValue, value);
         calculate(form, id);
       }, 80);
 
+      if (split){
+        const priceCard = createCard('', {cls:'range-card range-card--solo', body: priceField.field});
+        const downCard = createCard('', {cls:'range-card range-card--solo', body: downField.field});
+        return {priceCard, downCard};
+      }
+
+      const card = createCard(opts?.title || 'Adjust Your Numbers', {cls:'controls-card'});
+      card.appendChild(priceField.field);
+      card.appendChild(downField.field);
       return card;
     }
 
@@ -1129,10 +1158,24 @@
         resultsCard
       ]);
 
-      setRow('r2', [
-        buildListCard('Loan Details', d?.monthlyBreak || []),
-        buildRangeControls(homeVal, downAmount, {homeField:'home_price', downField:'down_payment'})
-      ]);
+      const loanDetailsCard = buildListCard('Loan Details', d?.monthlyBreak || []);
+      const affordRanges = buildRangeControls(homeVal, downAmount, {
+        homeField:'home_price',
+        downField:'down_payment',
+        split:true,
+      });
+      let rangeGroup = null;
+      if (affordRanges && (affordRanges.priceCard || affordRanges.downCard)){
+        rangeGroup = document.createElement('div');
+        rangeGroup.className = 'creo-range-stack';
+        if (affordRanges.priceCard) rangeGroup.appendChild(affordRanges.priceCard);
+        if (affordRanges.downCard) rangeGroup.appendChild(affordRanges.downCard);
+      } else if (affordRanges instanceof HTMLElement){
+        rangeGroup = affordRanges;
+      }
+      const affordRow = [loanDetailsCard];
+      if (rangeGroup) affordRow.push(rangeGroup);
+      setRow('r2', affordRow);
 
       const dpPct = homeVal > 0 ? (downAmount/homeVal) * 100 : 0;
       const summaryText = `Summary: Based on what you input into today your Total Payment would be <strong>${money(totalM)}</strong> on a <strong>${programLabel} Loan</strong> with a <strong>${dpPct.toFixed(2)}% Down Payment</strong>. Your Debt-to-Income Ratio is <strong>${d?.afford?.dti_you || '--'}</strong> and the maximum allowable on this program type is <strong>${d?.afford?.dti_allowed || '50%/50%'}</strong>. Please confirm all these numbers for accuracy with your loan officer. The Monthly Debts Calculation is often where we see errors.`;
@@ -1146,7 +1189,7 @@
       const homeVal = byLabel(d?.monthlyBreak, 'home value') ?? Number(form.querySelector('[name="home_value"]')?.value || 200000);
       const downVal = Number(form.querySelector('[name="down_payment"]')?.value || 0);
 
-      const kpis = buildKpiStack([
+      const kpiStack = buildKpiStack([
         {label:'Monthly Mortgage Payment', value: totalMonthly, cls:'kpi-lg kpi-navy'},
         {label:'Total Loan Amount', value: loanVal || d?.kpis?.[1]?.value || 0, cls:'kpi-lg kpi-navy'},
         {label:'Total Interest Paid', value: d?.kpis?.[2]?.value || 0},
@@ -1154,12 +1197,17 @@
       ]);
 
       const donutCard = buildDonutCard(copy.pay_title || 'Payment Breakdown', copy.pay_info || '', d?.donut);
-      setRow('r1', [donutCard, kpis]);
+      const loanDetailsCard = buildListCard('Loan Details', d?.monthlyBreak || []);
 
-      setRow('r2', [
-        buildListCard('Loan Details', d?.monthlyBreak || []),
-        buildRangeControls(homeVal, downVal, {homeField:'home_value', downField:'down_payment', baseField:'base_amount'})
-      ]);
+      const sliderCards = buildRangeControls(homeVal, downVal, {
+        homeField:'home_value',
+        downField:'down_payment',
+        baseField:'base_amount',
+        split:true,
+      });
+      const priceCard = sliderCards && sliderCards.priceCard ? sliderCards.priceCard : null;
+      const downCard = sliderCards && sliderCards.downCard ? sliderCards.downCard : null;
+      const fallbackSlider = (!priceCard && !downCard && sliderCards instanceof HTMLElement) ? sliderCards : null;
 
       const infoCards = [];
       if (copy.early_title || copy.early_info){
@@ -1175,11 +1223,37 @@
           {label:'First Use', raw: d.fee.first ? 'Yes' : 'No'},
         ]));
       }
-      if (infoCards.length) setRow('r3', infoCards);
 
       const dpPct = homeVal > 0 ? (downVal/homeVal) * 100 : 0;
       const summaryText = `Your estimated total monthly payment is <strong>${money(totalMonthly)}</strong> with a loan amount of <strong>${money(loanVal || 0)}</strong> and a down payment of <strong>${money(downVal)} (${dpPct.toFixed(1)}%)</strong>. Review property taxes, insurance and HOA dues for accuracy with your loan officer.`;
-      setRow('r4', [buildSummaryCard(summaryText)]);
+      const summaryCard = buildSummaryCard(summaryText);
+
+      const columns = document.createElement('div');
+      columns.className = 'creo-columns';
+
+      const colOne = document.createElement('div');
+      colOne.className = 'creo-column column-primary';
+      colOne.appendChild(donutCard);
+      colOne.appendChild(loanDetailsCard);
+      infoCards.forEach(card => colOne.appendChild(card));
+
+      const metricsCard = createCard(copy.kpi_title || 'Key Metrics', {cls:'kpi-card', body: kpiStack});
+      const colTwo = document.createElement('div');
+      colTwo.className = 'creo-column column-secondary';
+      colTwo.appendChild(metricsCard);
+      if (priceCard) colTwo.appendChild(priceCard);
+      if (downCard) colTwo.appendChild(downCard);
+      if (!priceCard && !downCard && fallbackSlider) colTwo.appendChild(fallbackSlider);
+      colTwo.appendChild(summaryCard);
+
+      columns.append(colOne, colTwo);
+
+      setRow('r1', [columns]);
+      setRow('r2', []);
+      setRow('r3', []);
+      setRow('r4', []);
+      setRow('r5', []);
+      setRow('r6', []);
       return;
     }
 
