@@ -946,7 +946,9 @@
         input.max = String(config.max);
         input.step = String(config.step ?? 1);
         if (config.name) input.name = config.name;
+
         if (config.label) input.setAttribute('aria-label', config.label);
+
         input.value = String(config.value ?? config.min);
         rangeWrap.appendChild(input);
         const meta = document.createElement('div');
@@ -960,6 +962,7 @@
         return {field, input, valueEl, minEl, maxEl};
       }
 
+
       const split = Boolean(opts?.split);
       const showLabels = opts?.showLabels ?? true;
       const priceLabel = opts?.priceLabel || opts?.priceTitle || 'Purchase Price';
@@ -967,6 +970,11 @@
 
       const priceField = makeRangeField({
         label: priceLabel,
+
+      const showLabels = !opts?.split;
+      const priceField = makeRangeField({
+        label: 'Purchase Price',
+
         min: homeMin,
         max: homeMax,
         step: 1000,
@@ -975,7 +983,11 @@
         showLabel: showLabels,
       });
       const downField = makeRangeField({
+
         label: downLabel,
+
+        label: 'Down Payment',
+
         min: 0,
         max: downLimit(currentHome),
         step: 500,
@@ -1067,9 +1079,15 @@
         calculate(form, id);
       }, 80);
 
+
       if (split){
         const priceCard = createCard('', {cls:'range-card range-card--solo', body: priceField.field});
         const downCard = createCard('', {cls:'range-card range-card--solo', body: downField.field});
+
+      if (opts?.split){
+        const priceCard = createCard(opts?.priceTitle || 'Purchase Price', {cls:'range-card', body: priceField.field});
+        const downCard = createCard(opts?.downTitle || 'Down Payment', {cls:'range-card', body: downField.field});
+
         return {priceCard, downCard};
       }
 
