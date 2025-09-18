@@ -163,12 +163,38 @@
 .row-two{grid-template-columns:1fr 1fr}
 @media (max-width:1100px){.row-one,.row-two{grid-template-columns:1fr}}
 
+.creo-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.creo-row>.creo-columns{grid-column:1/-1;width:100%}
+.creo-column{display:flex;flex-direction:column;gap:20px}
+@media (max-width:1100px){.creo-columns{grid-template-columns:1fr}}
+
+.creo-range-stack{display:flex;flex-direction:column;gap:20px}
+
 /* cards */
 .creo-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
 .creo-card.info-card{background:#f8fafc;border-color:#e2e8f0}
 .creo-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .creo-card-h h3{margin:0;font-size:15px}
 .creo-card-copy{margin:0 0 12px;font-size:13px;line-height:1.5;color:#475569}
+
+.creo-card.kpi-card{display:flex;flex-direction:column;gap:14px}
+.creo-card.kpi-card .creo-card-h h3{font-weight:700}
+
+.creo-card.range-card{background:#eff6ff;border-color:#dbeafe;display:flex;flex-direction:column;gap:18px}
+.creo-card.range-card .creo-card-h h3{color:#1d4ed8;font-size:14px;font-weight:700}
+.creo-card.range-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+.creo-card.range-card.range-card--solo{
+  background:#fff;
+  border-color:#e2e8f0;
+  box-shadow:0 12px 28px rgba(15,23,42,.08);
+  padding:20px 18px;
+}
+.creo-card.range-card.range-card--solo .range-field{gap:14px}
+.creo-card.range-card.range-card--solo .range-h{font-size:14px;font-weight:700;color:#0f172a}
+.creo-card.range-card.range-card--solo .range-value{font-size:20px;color:#1d4ed8}
+.creo-card.range-card.range-card--solo .range-meta{font-size:11px;color:#64748b}
+.creo-card.range-card.range-card--solo .range-meta span{color:inherit;font-weight:600}
 
 /* controls card (merged duplicates) */
 .creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
@@ -187,6 +213,7 @@
 }
 .creo-card.summary-card .creo-summary{font-size:14px;line-height:1.75;color:inherit}
 .creo-card.summary-card .creo-summary strong{color:#fff}
+.creo-columns .creo-card.summary-card{max-width:none}
 .rightcol{display:grid;grid-template-rows:auto auto;gap:20px}
 
 /* Affordability KPIs (use single, final set) */
@@ -256,6 +283,7 @@
 
 /* sliders in right column */
 .range-field{display:flex;flex-direction:column;gap:10px}
+.range-field.no-label .range-h{justify-content:flex-end}
 .range-h{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:#1f2937}
 .range-value{font-size:18px;font-weight:800;color:#1d4ed8}
 .range input[type=range]{width:100%;appearance:none;background:transparent}
