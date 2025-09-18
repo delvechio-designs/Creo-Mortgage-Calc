@@ -6,12 +6,16 @@
   font-family:Inter,system-ui,ui-sans-serif,Segoe UI,Roboto,Arial,sans-serif;
   color:#0f172a;
 }
-.creo-calcs-nav{display:flex;gap:12px;border-bottom:1px solid #e5e7eb;margin-bottom:18px;padding:8px 4px;flex-wrap:wrap}
+.creo-calcs-nav{display:flex;align-items:flex-end;gap:18px;border-bottom:1px solid #e5e7eb;margin-bottom:18px;padding:0 4px;flex-wrap:wrap}
 .creo-nav-btn{
-  background:#fff;border:1px solid #e5e7eb;padding:10px 14px;border-radius:10px;
-  font-weight:700;color:#111827;cursor:pointer
+  display:inline-flex;align-items:center;padding:12px 0;background:none;border:none;border-radius:0;box-shadow:none;
+  font-weight:700;color:#111827;cursor:pointer;border-bottom:3px solid transparent;transition:color .18s ease,border-bottom-color .18s ease
 }
-.creo-nav-btn.is-active{background:#111827;color:#fff;border-color:#111827}
+.creo-nav-btn:hover{color:#0f172a;border-bottom-color:#cbd5f5}
+.creo-nav-btn:focus-visible{outline:2px solid #cbd5f5;outline-offset:2px;color:#0f172a;border-bottom-color:#94a3b8}
+.creo-nav-btn.is-active{color:#0f172a;border-bottom-color:#111827}
+.creo-nav-btn.is-active:hover{border-bottom-color:#111827}
+.creo-nav-btn.is-active:focus-visible{border-bottom-color:#111827}
 
 /* calculator frame */
 .creo-grid{display:grid;grid-template-columns:clamp(380px,34vw,560px) 1fr;gap:20px;align-items:start}
