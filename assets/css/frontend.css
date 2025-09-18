@@ -6,16 +6,61 @@
   font-family:Inter,system-ui,ui-sans-serif,Segoe UI,Roboto,Arial,sans-serif;
   color:#0f172a;
 }
-.creo-calcs-nav{display:flex;align-items:flex-end;gap:18px;border-bottom:1px solid #e5e7eb;margin-bottom:18px;padding:0 4px;flex-wrap:nowrap;overflow-x:auto}
-.creo-nav-btn{
-  display:inline-flex;align-items:center;padding:12px 0;margin:0;background:none;border:none;border-radius:0;box-shadow:none;
-  font-weight:700;color:#475569;cursor:pointer;border-bottom:2px solid transparent;transition:color .18s ease,border-bottom-color .18s ease;flex:0 0 auto;white-space:nowrap
+.creo-calcs-nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+  margin-bottom:18px;
+  padding:12px 14px;
+  background:#0d121f;
+  border:1px solid #1c2333;
+  border-radius:16px;
+  box-shadow:0 16px 30px rgba(4,10,25,.35);
 }
-.creo-nav-btn:hover{color:#0f172a;border-bottom-color:#cbd5f5}
-.creo-nav-btn:focus-visible{outline:2px solid #cbd5f5;outline-offset:2px;color:#0f172a;border-bottom-color:#94a3b8}
-.creo-nav-btn.is-active{color:#0f172a;border-bottom-color:#111827}
-.creo-nav-btn.is-active:hover{border-bottom-color:#111827}
-.creo-nav-btn.is-active:focus-visible{border-bottom-color:#111827}
+.creo-nav-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  margin:0;
+  background:#111827;
+  color:#e5e7eb;
+  border:1px solid #1f2937;
+  border-radius:999px;
+  box-shadow:none;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease;
+  flex:1 1 160px;
+  white-space:nowrap;
+}
+.creo-nav-btn:hover{
+  background:#1f2937;
+  border-color:#374151;
+  color:#f8fafc;
+}
+.creo-nav-btn:focus-visible{
+  outline:2px solid #fbbf24;
+  outline-offset:2px;
+}
+.creo-nav-btn.is-active{
+  background:#fbbf24;
+  border-color:#fbbf24;
+  color:#111827;
+  box-shadow:0 10px 22px rgba(251,191,36,.35);
+}
+.creo-nav-btn.is-active:hover{
+  background:#fbbf24;
+  border-color:#f59e0b;
+  color:#111827;
+}
+.creo-nav-btn.is-active:focus-visible{
+  outline:2px solid #111827;
+  outline-offset:2px;
+}
 
 /* calculator frame */
 .creo-grid{display:grid;grid-template-columns:clamp(380px,34vw,560px) 1fr;gap:20px;align-items:start}
