@@ -946,6 +946,9 @@
         input.max = String(config.max);
         input.step = String(config.step ?? 1);
         if (config.name) input.name = config.name;
+
+        if (config.label) input.setAttribute('aria-label', config.label);
+
         input.value = String(config.value ?? config.min);
         rangeWrap.appendChild(input);
         const meta = document.createElement('div');
@@ -959,9 +962,19 @@
         return {field, input, valueEl, minEl, maxEl};
       }
 
+
+      const split = Boolean(opts?.split);
+      const showLabels = opts?.showLabels ?? true;
+      const priceLabel = opts?.priceLabel || opts?.priceTitle || 'Purchase Price';
+      const downLabel = opts?.downLabel || opts?.downTitle || 'Down Payment';
+
+      const priceField = makeRangeField({
+        label: priceLabel,
+
       const showLabels = !opts?.split;
       const priceField = makeRangeField({
         label: 'Purchase Price',
+
         min: homeMin,
         max: homeMax,
         step: 1000,
@@ -970,7 +983,11 @@
         showLabel: showLabels,
       });
       const downField = makeRangeField({
+
+        label: downLabel,
+
         label: 'Down Payment',
+
         min: 0,
         max: downLimit(currentHome),
         step: 500,
@@ -1062,9 +1079,15 @@
         calculate(form, id);
       }, 80);
 
+
+      if (split){
+        const priceCard = createCard('', {cls:'range-card range-card--solo', body: priceField.field});
+        const downCard = createCard('', {cls:'range-card range-card--solo', body: downField.field});
+
       if (opts?.split){
         const priceCard = createCard(opts?.priceTitle || 'Purchase Price', {cls:'range-card', body: priceField.field});
         const downCard = createCard(opts?.downTitle || 'Down Payment', {cls:'range-card', body: downField.field});
+
         return {priceCard, downCard};
       }
 
@@ -1153,10 +1176,24 @@
         resultsCard
       ]);
 
-      setRow('r2', [
-        buildListCard('Loan Details', d?.monthlyBreak || []),
-        buildRangeControls(homeVal, downAmount, {homeField:'home_price', downField:'down_payment'})
-      ]);
+      const loanDetailsCard = buildListCard('Loan Details', d?.monthlyBreak || []);
+      const affordRanges = buildRangeControls(homeVal, downAmount, {
+        homeField:'home_price',
+        downField:'down_payment',
+        split:true,
+      });
+      let rangeGroup = null;
+      if (affordRanges && (affordRanges.priceCard || affordRanges.downCard)){
+        rangeGroup = document.createElement('div');
+        rangeGroup.className = 'creo-range-stack';
+        if (affordRanges.priceCard) rangeGroup.appendChild(affordRanges.priceCard);
+        if (affordRanges.downCard) rangeGroup.appendChild(affordRanges.downCard);
+      } else if (affordRanges instanceof HTMLElement){
+        rangeGroup = affordRanges;
+      }
+      const affordRow = [loanDetailsCard];
+      if (rangeGroup) affordRow.push(rangeGroup);
+      setRow('r2', affordRow);
 
       const dpPct = homeVal > 0 ? (downAmount/homeVal) * 100 : 0;
       const summaryText = `Summary: Based on what you input into today your Total Payment would be <strong>${money(totalM)}</strong> on a <strong>${programLabel} Loan</strong> with a <strong>${dpPct.toFixed(2)}% Down Payment</strong>. Your Debt-to-Income Ratio is <strong>${d?.afford?.dti_you || '--'}</strong> and the maximum allowable on this program type is <strong>${d?.afford?.dti_allowed || '50%/50%'}</strong>. Please confirm all these numbers for accuracy with your loan officer. The Monthly Debts Calculation is often where we see errors.`;

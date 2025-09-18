@@ -167,6 +167,9 @@
 .creo-column{display:flex;flex-direction:column;gap:20px}
 @media (max-width:1100px){.creo-columns{grid-template-columns:1fr}}
 
+
+.creo-range-stack{display:flex;flex-direction:column;gap:20px}
+
 /* cards */
 .creo-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px}
 .creo-card.info-card{background:#f8fafc;border-color:#e2e8f0}
@@ -180,6 +183,20 @@
 .creo-card.range-card{background:#eff6ff;border-color:#dbeafe;display:flex;flex-direction:column;gap:18px}
 .creo-card.range-card .creo-card-h h3{color:#1d4ed8;font-size:14px;font-weight:700}
 .creo-card.range-card .range-meta span{color:#1e3a8a;font-weight:600}
+
+
+.creo-card.range-card.range-card--solo{
+  background:#fff;
+  border-color:#e2e8f0;
+  box-shadow:0 12px 28px rgba(15,23,42,.08);
+  padding:20px 18px;
+}
+.creo-card.range-card.range-card--solo .range-field{gap:14px}
+.creo-card.range-card.range-card--solo .range-h{font-size:14px;font-weight:700;color:#0f172a}
+.creo-card.range-card.range-card--solo .range-value{font-size:20px;color:#1d4ed8}
+.creo-card.range-card.range-card--solo .range-meta{font-size:11px;color:#64748b}
+.creo-card.range-card.range-card--solo .range-meta span{color:inherit;font-weight:600}
+
 
 /* controls card (merged duplicates) */
 .creo-card.controls-card{background:#eff6ff;border-color:#dbeafe}
