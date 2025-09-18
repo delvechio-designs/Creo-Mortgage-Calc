@@ -16,6 +16,163 @@
     return m?Number(m.v)||0:null;
   }
 
+  function parseLiveNumber(value){
+    if (value === undefined || value === null) return null;
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      const cleaned = trimmed.replace(/[^0-9.+-]/g, '');
+      if (!cleaned) return null;
+      const num = Number(cleaned);
+      return Number.isFinite(num) ? num : null;
+    }
+    if (Array.isArray(value)) {
+      return value.length ? parseLiveNumber(value[0]) : null;
+    }
+    if (typeof value === 'object') {
+      const source = value || {};
+      if ('value' in source) return parseLiveNumber(source.value);
+      if ('rate' in source) return parseLiveNumber(source.rate);
+      if ('amount' in source) return parseLiveNumber(source.amount);
+      if ('yearly_change' in source) return parseLiveNumber(source.yearly_change);
+      if ('yearlyChange' in source) return parseLiveNumber(source.yearlyChange);
+      return null;
+    }
+    return null;
+  }
+
+  const liveYearlyChange = (() => {
+    const listeners = new Set();
+    const epsilon = 0.000001;
+
+    let liveContainer = (config && typeof config.live === 'object') ? config.live : null;
+    let current = parseLiveNumber(
+      (liveContainer && (liveContainer.yearly_change ?? liveContainer.yearlyChange))
+      ?? config.yearly_change
+      ?? config.yearlyChange
+    );
+    if (current === undefined) current = null;
+
+    function notify(){
+      listeners.forEach(fn => {
+        try { fn(current, {initial:false}); }
+        catch(err){ if (typeof console !== 'undefined') console.error(err); }
+      });
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        try {
+          window.dispatchEvent(new CustomEvent('creo-mc:live-yearly-change-updated', {detail:{value: current}}));
+        } catch (err) {
+          // noop
+        }
+      }
+    }
+
+    function update(next){
+      const parsed = parseLiveNumber(next);
+      if (parsed === null || parsed === undefined) return;
+      if (current !== null && Math.abs(parsed - current) <= epsilon) return;
+      current = parsed;
+      notify();
+    }
+
+    function makeReactive(target){
+      if (!target || typeof target !== 'object') return;
+      ['yearly_change','yearlyChange'].forEach(key => {
+        const descriptor = Object.getOwnPropertyDescriptor(target, key);
+        let initial = descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') ? descriptor.value : undefined;
+        if (descriptor && descriptor.configurable === false) {
+          if (initial !== undefined) update(initial);
+          return;
+        }
+        try {
+          Object.defineProperty(target, key, {
+            configurable: true,
+            enumerable: true,
+            get(){ return current; },
+            set(value){ update(value); },
+          });
+        } catch (err) {
+          if (initial !== undefined) update(initial);
+          return;
+        }
+        if (initial !== undefined) update(initial);
+      });
+    }
+
+    if (!liveContainer || typeof liveContainer !== 'object') {
+      liveContainer = {};
+      config.live = liveContainer;
+    }
+
+    makeReactive(liveContainer);
+    makeReactive(config);
+
+    try {
+      Object.defineProperty(config, 'live', {
+        configurable: true,
+        enumerable: true,
+        get(){ return liveContainer; },
+        set(value){
+          liveContainer = (value && typeof value === 'object') ? value : {};
+          makeReactive(liveContainer);
+          const derived = parseLiveNumber(liveContainer.yearly_change ?? liveContainer.yearlyChange);
+          if (derived !== null && derived !== undefined) {
+            update(derived);
+          }
+        },
+      });
+    } catch (err) {
+      // ignore if we can't redefine
+    }
+
+    function handleEvent(event){
+      const detail = event?.detail;
+      if (!detail) return;
+      if (Object.prototype.hasOwnProperty.call(detail, 'yearly_change')) {
+        update(detail.yearly_change);
+      } else if (Object.prototype.hasOwnProperty.call(detail, 'yearlyChange')) {
+        update(detail.yearlyChange);
+      } else if (Object.prototype.hasOwnProperty.call(detail, 'value')) {
+        update(detail.value);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('creo-mc:live-update', handleEvent);
+      window.addEventListener('creo-mc:yearly-change', handleEvent);
+      window.addEventListener('creo_mc:live_update', handleEvent);
+    }
+
+    const store = {
+      get value(){ return current; },
+      set value(next){ update(next); },
+      subscribe(fn){
+        if (typeof fn !== 'function') return () => {};
+        listeners.add(fn);
+        if (current !== null && current !== undefined) {
+          try { fn(current, {initial:true}); }
+          catch(err){ if (typeof console !== 'undefined') console.error(err); }
+        }
+        return () => listeners.delete(fn);
+      },
+      refresh(){
+        update(
+          (liveContainer && (liveContainer.yearly_change ?? liveContainer.yearlyChange))
+          ?? config.yearly_change
+          ?? config.yearlyChange
+        );
+      },
+    };
+
+    config.liveYearlyChangeStore = store;
+    config.updateYearlyChange = value => update(value);
+
+    return store;
+  })();
+
   function setAffordProgramBadge(form, label){
     if (!form) return;
     const pill = form.querySelector('[data-program-label]');
@@ -89,6 +246,11 @@
     const tab = state.tabs[id] || {};
     const inputs = form.querySelector('.creo-inputs');
     if (!inputs) return;
+    if (typeof form._affordInterestCleanup === 'function') {
+      try { form._affordInterestCleanup(); }
+      catch(err){ if (typeof console !== 'undefined') console.error(err); }
+    }
+    delete form._affordInterestCleanup;
     inputs.className = 'creo-inputs';
     inputs.innerHTML = '';
 
@@ -300,6 +462,9 @@
       ? data.credit_score_options
       : ['580-619','620-639','640-659','660-679','680-699','700-719','720-739','740-759','760-779','780+'];
     const creditDefault = getValue('credit_score', creditChoices[0]);
+    const liveInterest = parseLiveNumber(liveYearlyChange.value);
+    const storedInterest = parseLiveNumber(getValue('interest_rate', null));
+    const interestDefault = (liveInterest ?? storedInterest ?? 6.5);
 
     let syncDerived = () => {};
 
@@ -471,6 +636,29 @@
 
         input.addEventListener('focus', () => wrap.classList.add('is-focused'));
         input.addEventListener('blur', () => wrap.classList.remove('is-focused'));
+
+        if (def.name === 'interest_rate') {
+          wrap.classList.add('is-live-field');
+          const previousCleanup = typeof form._affordInterestCleanup === 'function' ? form._affordInterestCleanup : null;
+          const handler = (value, meta = {}) => {
+            if (typeof value !== 'number' || !Number.isFinite(value)) return;
+            const decimals = Number(input.dataset.decimals || decimalsUsed || 0);
+            const formatted = formatValue(value, decimals);
+            if (input.value === formatted) return;
+            input.value = formatted;
+            if (!meta || !meta.initial) {
+              input.dispatchEvent(new Event('input', {bubbles:true}));
+            }
+          };
+          const unsubscribe = liveYearlyChange.subscribe(handler);
+          form._affordInterestCleanup = () => {
+            unsubscribe();
+            if (previousCleanup) {
+              try { previousCleanup(); }
+              catch(err){ if (typeof console !== 'undefined') console.error(err); }
+            }
+          };
+        }
       }
 
       if (isSelect){
@@ -488,7 +676,7 @@
       {name:'down_payment', label:'Down Payment', prefix:'$', step:1000, min:0, decimals:0, default:getValue('down_payment', 0), modes:{amount:{label:'$', prefix:'$'}, percent:{label:'%', suffix:'%', decimals:2, step:0.25}}, defaultMode:'amount'},
       {name:'loan_amount', label:'Loan Amount', note:'Calculated', prefix:'$', step:1000, min:0, decimals:0, default:initialLoan, readonly:true},
       {name:'loan_terms', label:'Loan Term', step:1, min:1, decimals:0, default:getValue('loan_terms', 30), modes:{years:{label:'Year', suffix:'Years', decimals:0, step:1}, months:{label:'Month', suffix:'Months', decimals:0, step:1}}, defaultMode:'years'},
-      {name:'interest_rate', label:'Interest Rate', suffix:'%', step:0.125, min:0, decimals:3, default:getValue('interest_rate', 6.5)},
+      {name:'interest_rate', label:'Interest Rate', suffix:'%', step:0.125, min:0, decimals:3, default:interestDefault},
       {name:'credit_score', label:'Credit Score', type:'select', options:creditChoices.map(value => ({value, label:value})), default:creditDefault},
       {name:'prop_tax_pct', label:'Property Tax (Yearly)', suffix:'%', step:0.1, min:0, decimals:2, default:getValue('prop_tax_pct', 0.8), modes:{percent:{label:'%', suffix:'%', decimals:2, step:0.1}, amount:{label:'$', prefix:'$', decimals:0, step:100}}, defaultMode:'percent'},
       {name:'homeowners_ins', label:'Homeowners Insurance (Yearly)', prefix:'$', step:100, min:0, decimals:0, default:getValue('homeowners_ins', 1200), modes:{amount:{label:'$', prefix:'$', decimals:0, step:100}, percent:{label:'%', suffix:'%', decimals:2, step:0.1}}, defaultMode:'amount'},

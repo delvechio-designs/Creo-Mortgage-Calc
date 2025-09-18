@@ -17,10 +17,16 @@ class Creo_MC_Frontend {
     wp_enqueue_style( 'creo-mc-frontend' );
     wp_enqueue_script( 'creo-mc-donut' );
     $tabs = creo_mc_get_tabs();
+    $live = creo_mc_get_live_metrics();
+    $yearly_change = isset( $live['yearly_change'] ) ? $live['yearly_change'] : '';
+
     wp_localize_script( 'creo-mc-frontend', 'CREO_MC', [
-      'tabs'     => $tabs,
-      'restRoot' => esc_url_raw( rest_url( 'creo-mc/v1' ) ),
-      'nonce'    => wp_create_nonce( 'wp_rest' ),
+      'tabs'         => $tabs,
+      'restRoot'     => esc_url_raw( rest_url( 'creo-mc/v1' ) ),
+      'nonce'        => wp_create_nonce( 'wp_rest' ),
+      'live'         => $live,
+      'yearly_change'=> $yearly_change,
+      'yearlyChange' => $yearly_change,
     ] );
     wp_enqueue_script( 'creo-mc-frontend' );
     ob_start();
