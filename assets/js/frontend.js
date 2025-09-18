@@ -887,6 +887,11 @@
       layout.appendChild(donut);
       layout.appendChild(legend);
       card.appendChild(layout);
+      const renderFallbackPie = (totalValue) => {
+        const total = Number.isFinite(totalValue) ? totalValue : 0;
+        donut.innerHTML = `<div class="pie"><div class="center">${money(total)}<small>per month</small></div></div>`;
+      };
+
       if (src && Array.isArray(src.monthly) && src.monthly.length){
         const cols = src.colors || ['#f59e0b','#34d399','#10b981','#2563eb','#8b5cf6'];
         const slices = src.monthly.map((s,i)=>({
@@ -894,10 +899,27 @@
           c: cols[i%cols.length],
           label: s.label
         }));
-        window.CreoPie(donut, slices);
+        const total = slices.reduce((acc, slice) => acc + slice.v, 0);
+        const pieFn = typeof window.CreoPie === 'function'
+          ? window.CreoPie
+          : (typeof window.CreoDonut === 'function' ? window.CreoDonut : null);
+        let rendered = false;
+        if (pieFn){
+          try {
+            pieFn(donut, slices);
+            rendered = true;
+          } catch (err) {
+            if (typeof console !== 'undefined') {
+              console.error('[Creo MC] Donut render failed', err);
+            }
+          }
+        }
+        if (!rendered){
+          renderFallbackPie(total);
+        }
         legend.innerHTML = slices.map(s=>`<div class="item"><span class="swatch" style="background:${s.c}"></span><span class="label">${s.label}</span><span class="value">${money(s.v)}</span></div>`).join('');
       } else {
-        donut.innerHTML = '<div class="pie"><div class="center">$0.00<small>per month</small></div></div>';
+        renderFallbackPie(0);
         legend.innerHTML = '';
       }
       return card;
@@ -949,6 +971,10 @@
 
         if (config.label) input.setAttribute('aria-label', config.label);
 
+
+        if (config.label) input.setAttribute('aria-label', config.label);
+
+
         input.value = String(config.value ?? config.min);
         rangeWrap.appendChild(input);
         const meta = document.createElement('div');
@@ -971,9 +997,11 @@
       const priceField = makeRangeField({
         label: priceLabel,
 
+
       const showLabels = !opts?.split;
       const priceField = makeRangeField({
         label: 'Purchase Price',
+
 
         min: homeMin,
         max: homeMax,
@@ -986,7 +1014,11 @@
 
         label: downLabel,
 
+
+        label: downLabel,
+
         label: 'Down Payment',
+
 
         min: 0,
         max: downLimit(currentHome),
@@ -1084,9 +1116,15 @@
         const priceCard = createCard('', {cls:'range-card range-card--solo', body: priceField.field});
         const downCard = createCard('', {cls:'range-card range-card--solo', body: downField.field});
 
+
+      if (split){
+        const priceCard = createCard('', {cls:'range-card range-card--solo', body: priceField.field});
+        const downCard = createCard('', {cls:'range-card range-card--solo', body: downField.field});
+
       if (opts?.split){
         const priceCard = createCard(opts?.priceTitle || 'Purchase Price', {cls:'range-card', body: priceField.field});
         const downCard = createCard(opts?.downTitle || 'Down Payment', {cls:'range-card', body: downField.field});
+
 
         return {priceCard, downCard};
       }
