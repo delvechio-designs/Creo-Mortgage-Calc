@@ -46,7 +46,7 @@
 
   const liveYearlyChange = (() => {
     const listeners = new Set();
-    const epsilon = 0.000001;
+       const epsilon = 0.000001;
 
     let liveContainer = (config && typeof config.live === 'object') ? config.live : null;
     let current = parseLiveNumber(
@@ -64,9 +64,7 @@
       if (typeof window !== 'undefined' && window.dispatchEvent) {
         try {
           window.dispatchEvent(new CustomEvent('creo-mc:live-yearly-change-updated', {detail:{value: current}}));
-        } catch (err) {
-          // noop
-        }
+        } catch (err) { /* noop */ }
       }
     }
 
@@ -124,9 +122,7 @@
           }
         },
       });
-    } catch (err) {
-      // ignore if we can't redefine
-    }
+    } catch (err) { /* ignore if we can't redefine */ }
 
     function handleEvent(event){
       const detail = event?.detail;
@@ -172,21 +168,6 @@
 
     return store;
   })();
-
-  function setAffordProgramBadge(form, label){
-    if (!form) return;
-    const pill = form.querySelector('[data-program-label]');
-    if (!pill) return;
-    if (label){
-      pill.textContent = `${label} Program`;
-      pill.classList.add('is-visible');
-      pill.hidden = false;
-    } else {
-      pill.textContent = '';
-      pill.classList.remove('is-visible');
-      pill.hidden = true;
-    }
-  }
 
   function parseAffordPrograms(data){
     const cfg = data || {};
@@ -262,7 +243,6 @@
       if (hiddenProgram) hiddenProgram.remove();
       delete form.dataset.program;
       delete form.dataset.programLabel;
-      setAffordProgramBadge(form, null);
     }
 
     inputs.oninput = debounce(()=>calculate(form,id), 250);
@@ -401,7 +381,6 @@
     } else {
       delete form.dataset.programLabel;
     }
-    setAffordProgramBadge(form, currentProgram?.label);
 
     const cta = form.querySelector('.creo-cta');
     if (cta && !cta.dataset.defaultText){
@@ -437,7 +416,6 @@
           nav.querySelectorAll('.creo-subbtn').forEach(x => x.classList.remove('is-active'));
           btn.classList.add('is-active');
           updateCta(prog);
-          setAffordProgramBadge(form, prog.label);
           calculate(form, id);
         });
         nav.appendChild(btn);
@@ -670,12 +648,12 @@
     }
 
     const fields = [
-      {name:'gross_income_monthly', label:'Gross Income (Monthly)', prefix:'$', note:'Per Month', step:100, min:0, decimals:0, default:getValue('gross_income_monthly', 7500)},
-      {name:'monthly_debts', label:'Monthly Debts', prefix:'$', note:'Per Month', step:50, min:0, decimals:0, default:getValue('monthly_debts', 1500)},
-      {name:'home_price', label:'Home Price', prefix:'$', note:'Purchase Price', step:1000, min:0, decimals:0, default:getValue('home_price', 200000)},
+      {name:'gross_income_monthly', label:'Gross Income (Monthly)', prefix:'$', step:100, min:0, decimals:0, default:getValue('gross_income_monthly', 7500)},
+      {name:'monthly_debts', label:'Monthly Debts', prefix:'$', step:50, min:0, decimals:0, default:getValue('monthly_debts', 1500)},
+      {name:'home_price', label:'Home Price', prefix:'$', step:1000, min:0, decimals:0, default:getValue('home_price', 200000)},
       {name:'down_payment', label:'Down Payment', prefix:'$', step:1000, min:0, decimals:0, default:getValue('down_payment', 0), modes:{amount:{label:'$', prefix:'$', suffix:''}, percent:{label:'%', prefix:'', suffix:'%', decimals:2, step:0.25}}, defaultMode:'amount'},
-      {name:'loan_amount', label:'Loan Amount', note:'Calculated', prefix:'$', step:1000, min:0, decimals:0, default:initialLoan, readonly:true},
-      {name:'loan_terms', label:'Loan Term', step:1, min:1, decimals:0, default:getValue('loan_terms', 30), modes:{years:{label:'Year', suffix:'Years', decimals:0, step:1}, months:{label:'Month', suffix:'Months', decimals:0, step:1}}, defaultMode:'years'},
+      {name:'loan_amount', label:'Loan Amount', prefix:'$', step:1000, min:0, decimals:0, default:initialLoan, readonly:true},
+      {name:'loan_terms', label:'Loan Term', step:1, min:1, decimals:0, default:getValue('loan_terms', 30), modes:{years:{label:'Year', decimals:0, step:1}, months:{label:'Month', decimals:0, step:1}}, defaultMode:'years'},
       {name:'interest_rate', label:'Interest Rate', suffix:'%', step:0.125, min:0, decimals:3, default:interestDefault},
       {name:'credit_score', label:'Credit Score', type:'select', options:creditChoices.map(value => ({value, label:value})), default:creditDefault},
       {name:'prop_tax_pct', label:'Property Tax (Yearly)', suffix:'%', step:0.1, min:0, decimals:2, default:getValue('prop_tax_pct', 0.8), modes:{percent:{label:'%', prefix:'', suffix:'%', decimals:2, step:0.1}, amount:{label:'$', prefix:'$', suffix:'', decimals:0, step:100}}, defaultMode:'percent'},
@@ -1112,16 +1090,9 @@
       if (activeProgram){
         form.dataset.programLabel = activeProgram.label;
       }
-      setAffordProgramBadge(form, programLabel);
 
       const resultsCard = createCard('', {cls:'afford-results-card'});
       resultsCard.innerHTML = '';
-      if (programLabel){
-        const pill = document.createElement('div');
-        pill.className = 'afford-pill';
-        pill.textContent = `${programLabel} Program`;
-        resultsCard.appendChild(pill);
-      }
 
       const kpiWrap = document.createElement('div');
       kpiWrap.className = 'afford-kpi-wrap';
@@ -1132,12 +1103,10 @@
         <div class="afford-kpi">
           <span class="label">Monthly Mortgage Payment</span>
           <span class="value">${money(totalM)}</span>
-          <span class="sub">Per Month</span>
         </div>
         <div class="afford-kpi">
           <span class="label">Loan Amount</span>
           <span class="value">${money(loanVal)}</span>
-          <span class="sub">At Closing</span>
         </div>`;
       kpiWrap.appendChild(kpiMain);
 
